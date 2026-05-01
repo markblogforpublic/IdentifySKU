@@ -8,6 +8,12 @@ Automatically split multi-label PDF sheets into individual SKU/range-based PDF f
 
 ---
 
+**免责声明 (Disclaimer)：**
+
+**本工具为开源公益项目（MIT License），仅供学习与合法用途。使用者须确保所处理的标签文件来源合规，并对自己的操作承担全部责任。开发者不对此工具的误用或任何间接损失负责。This is an open-source, goodwill project. Users are solely responsible for ensuring their usage complies with all applicable laws and regulations.**
+
+
+
 ## ✨ Features · 功能
 
 - **UK / AU Mode** — Split labels by FBA label-number ranges (e.g. `FBA15XXXU0` through `FBA15XXXU58`), parsed automatically from your packing-list CSV or Excel file.
