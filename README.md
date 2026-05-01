@@ -19,6 +19,18 @@ You can see in IdentifySKU_2.5_lite
 
 More Info: Please read its readme.md
 
+## 与完整版的区别 | Differences from Full Version
+
+| 特性 | 完整版 V2.5 | Lite 版 |
+|------|-------------|---------|
+| 交互方式 | Flask Web UI + Desktop Launcher | 命令行 CLI |
+| 启动耗时 | 需要启动 Web 服务和浏览器 | 即时启动 |
+| CPU/内存占用 | 较高（Flask + 浏览器） | 极低 |
+| UK/AU/US | 支持 | 支持 |
+| 双语切换 | 支持 | 支持 |
+| 依赖数量 | Flask, customtkinter, openpyxl 等 | 仅 pymupdf |
+| 打包体积 | ~150MB | ~40MB |
+
 
 ---
 **免责声明 (Disclaimer)：**
