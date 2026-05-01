@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html id="app-html" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FBA Label Splitter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+    :root{/* 默认 Water Lilies 睡莲 */
+      --bg:        #f0f4f1; --surface:   #ffffff; --border:    #d4e0d8;
+      --text:      #2d3a2f; --text-dim:  #6b7d6e; --primary:   #4a7c59;
+      --primary-h: #3d6b4a; --primary-bg:#e8f0ea; --accent:    #7ba587;
+      --danger:    #c53030; --success:   #2f855a;
+    }
+    .theme-water{/* 默认 */}
+    .theme-sunrise{
+      --bg:#fef7f0; --surface:#fffaf5; --border:#f0dcc8; --text:#4a3728; --text-dim:#8b7355;
+      --primary:#c97d3b; --primary-h:#b06a2d; --primary-bg:#fdf0e3; --accent:#e0a56f; --danger:#c53030; --success:#8b6914;
+    }
+    .theme-garden{
+      --bg:#f5f2fa; --surface:#fdfbff; --border:#e0d5ef; --text:#3a2e4a; --text-dim:#7b6b8e;
+      --primary:#7c5cbf; --primary-h:#6a4da8; --primary-bg:#f0eafc; --accent:#a78fcf; --danger:#c53030; --success:#5b8c4e;
+    }
+    .theme-dark{
+      --bg:#1a1a2e; --surface:#222240; --border:#333358; --text:#e4e4ed; --text-dim:#9999b3;
+      --primary:#818cf8; --primary-h:#6366f1; --primary-bg:#1e1e3a; --accent:#a5b4fc; --danger:#f87171; --success:#6ee7b7;
+    }
+    body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;border:none}
+    .btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+    .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-h)}
+    .btn-ghost{background:transparent;color:var(--primary)}.btn-ghost:hover{background:var(--primary-bg)}
+    .drop-zone{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .15s}
+    .drop-zone:hover,.drop-zone.drag-over{border-color:var(--primary);background:var(--primary-bg)}
+    .drop-zone:focus-within{outline:2px solid var(--primary);outline-offset:2px}
+    .nav-btn{min-height:40px;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--text-dim);border:none}
+    .nav-btn:hover{background:var(--primary-bg);color:var(--text)}
+    .nav-btn.active{background:var(--primary);color:#fff}
+    .nav-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+    .progress-bar{transition:width .3s ease-out}
+    .fade-in{animation:fadeIn .2s ease-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .range-tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:var(--primary-bg);color:var(--primary);border:1px solid var(--border)}
+    .log-row{display:grid;grid-template-columns:140px 1fr 120px;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
+    .theme-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s}
+    .theme-swatch:hover,.theme-swatch.active{border-color:var(--primary);transform:scale(1.15)}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body class="h-full">
+
+<!-- ====== Login Overlay ====== -->
+<div id="login-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.55)">
+  <div class="card p-8 w-full max-w-sm fade-in">
+    <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4" style="background:var(--primary)">
+      <i data-lucide="lock" class="w-6 h-6 text-white"></i>
+    </div>
+    <h2 class="text-lg font-semibold text-center mb-2" data-i18n="login_title">FBA Label Splitter</h2>
+    <p id="login-hint" class="text-xs text-center mb-5" data-i18n="login_hint" style="color:var(--text-dim)">
+      Server account verification is enabled. Please enter your username and password.
+    </p>
+    <input id="login-user" type="text" data-i18n-placeholder="username" placeholder="Username" autocomplete="username"
+      class="w-full text-sm px-4 py-3 rounded-lg border outline-none mb-3 bg-transparent"
+      style="border-color:var(--border);color:var(--text)"
+      onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+    <input id="login-pass" type="password" data-i18n-placeholder="password" placeholder="Password" autocomplete="current-password"
+      class="w-full text-sm px-4 py-3 rounded-lg border outline-none mb-3 bg-transparent"
+      style="border-color:var(--border);color:var(--text)"
+      onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+    <label class="flex items-center gap-2 mb-4 cursor-pointer">
+      <input id="login-remember" type="checkbox" class="w-4 h-4 rounded" style="accent-color:var(--primary)">
+      <span class="text-xs" data-i18n="remember_me" style="color:var(--text-dim)">Remember me (30 days)</span>
+    </label>
+    <p id="login-error" class="text-xs text-center mb-3 hidden" style="color:var(--danger)"></p>
+    <button id="login-btn" class="btn btn-primary w-full">
+      <i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="login">Login</span>
+    </button>
+  </div>
+</div>
+
+<div id="app-container" class="min-h-full flex flex-col max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+
+  <!-- ====== Header ====== -->
+  <header class="flex items-center gap-3 mb-5">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--primary)">
+      <i data-lucide="package-open" class="w-5 h-5 text-white"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <h1 class="text-base font-semibold leading-tight" data-i18n="app_title" style="color:var(--text)">FBA Label Splitter</h1>
+      <p class="text-xs" data-i18n="app_subtitle" style="color:var(--text-dim)">Amazon FBA Label Intelligent Splitter</p>
+    </div>
+    <!-- Language toggle -->
+    <button id="lang-toggle" class="text-xs px-2 py-1 rounded flex-shrink-0" style="border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text-dim)" title="Switch language">中/EN</button>
+    <!-- User area -->
+    <div id="user-area" class="flex items-center gap-2 flex-shrink-0">
+      <span id="user-avatar" class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold" style="background:var(--border);color:var(--text-dim)">G</span>
+      <span id="user-name" class="text-xs font-medium" style="color:var(--text-dim)">Guest</span>
+      <button id="user-logout-btn" class="hidden text-xs px-2 py-1 rounded" style="color:var(--text-dim);border:1px solid var(--border);background:transparent;cursor:pointer" title="Logout"><span data-i18n="logout">Logout</span></button>
+    </div>
+    <!-- Theme quick switcher -->
+    <div class="flex items-center gap-1.5" id="theme-switcher-mini" title="Quick switch theme">
+      <span class="theme-swatch" data-theme="theme-water" style="background:linear-gradient(135deg,#4a7c59,#7ba587)"></span>
+      <span class="theme-swatch" data-theme="theme-sunrise" style="background:linear-gradient(135deg,#c97d3b,#e0a56f)"></span>
+      <span class="theme-swatch" data-theme="theme-garden" style="background:linear-gradient(135deg,#7c5cbf,#a78fcf)"></span>
+      <span class="theme-swatch" data-theme="theme-dark" style="background:linear-gradient(135deg,#6366f1,#a5b4fc)"></span>
+    </div>
+  </header>
+
+  <!-- ====== Navigation ====== -->
+  <nav class="flex gap-2 mb-5 flex-wrap" role="tablist">
+    <button class="nav-btn active" data-tab="uk" role="tab" aria-selected="true">
+      <i data-lucide="flag" class="w-3.5 h-3.5"></i> <span data-i18n="nav_uk">UK</span>
+    </button>
+    <button class="nav-btn" data-tab="au" role="tab" aria-selected="false">
+      <i data-lucide="flag" class="w-3.5 h-3.5"></i> <span data-i18n="nav_au">AU</span>
+    </button>
+    <button class="nav-btn" data-tab="us" role="tab" aria-selected="false">
+      <i data-lucide="flag" class="w-3.5 h-3.5"></i> <span data-i18n="nav_us">US</span>
+    </button>
+    <button class="nav-btn" data-tab="about" role="tab" aria-selected="false">
+      <i data-lucide="info" class="w-3.5 h-3.5"></i> <span data-i18n="nav_about">About</span>
+    </button>
+  </nav>
+
+  <!-- ====== Content area + CLI panel ====== -->
+  <div id="content-area" class="flex gap-0 flex-1 min-h-0">
+
+  <div id="main-content" class="flex-1 min-w-0 space-y-4">
+  <main id="tab-uk" class="flex-1 space-y-4 fade-in" role="tabpanel">
+    <div class="flex items-center gap-2 mb-1">
+      <span id="region-badge" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-white" style="background:var(--primary)">UK</span>
+      <span class="text-xs" data-i18n="nav_region_badge" style="color:var(--text-dim)">Region</span>
+    </div>
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">1</span>
+        <h2 class="text-sm font-semibold" data-i18n="uk_step1_title">Upload FBA Label PDF</h2>
+        <span class="text-xs ml-auto" style="color:var(--danger)"><span data-i18n="uk_step1_required">* Required</span></span>
+      </div>
+      <div id="pdf-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select PDF file">
+        <input type="file" id="pdf-input" accept=".pdf" aria-hidden="true">
+        <i data-lucide="file-text" class="w-8 h-8 mx-auto mb-2" style="color:var(--text-dim)"></i>
+        <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step1_hint">or drag PDF here</span></p>
+        <p id="pdf-file-name" class="text-xs hidden" style="color:var(--primary)"></p>
+      </div>
+    </section>
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">2</span>
+        <h2 class="text-sm font-semibold" data-i18n="uk_step2_title">Upload Packing List (CSV / Excel, optional)</h2>
+      </div>
+      <div id="csv-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select CSV or Excel file">
+        <input type="file" id="csv-input" accept=".csv,.xlsx,.xls" aria-hidden="true">
+        <i data-lucide="table" class="w-8 h-8 mx-auto mb-2" style="color:var(--text-dim)"></i>
+        <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step2_hint">or drag CSV / Excel here</span></p>
+        <p class="text-xs" data-i18n="uk_step2_auto" style="color:var(--text-dim)">Ranges will be auto-populated after upload</p>
+        <p id="csv-file-name" class="text-xs font-medium mt-1 hidden" style="color:var(--primary)"></p>
+      </div>
+    </section>
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">3</span>
+          <h2 class="text-sm font-semibold" data-i18n="uk_step3_title">Label Range Configuration</h2>
+          <span id="range-count" class="text-xs font-medium px-2 py-0.5 rounded" style="background:var(--primary-bg);color:var(--primary)">0</span>
+        </div>
+        <button id="add-range-btn" class="btn btn-ghost text-xs" style="min-height:32px;padding:4px 12px">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> <span data-i18n="uk_step3_add">Add Range</span>
+        </button>
+      </div>
+      <p class="text-xs mb-3" data-i18n="uk_step3_hint" style="color:var(--text-dim)">Auto-filled from CSV, or add manually. At least one range required.</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" id="range-table">
+          <thead>
+            <tr style="color:var(--text-dim);border-bottom:2px solid var(--border)">
+              <th class="text-left pb-2 font-medium text-xs w-8">#</th>
+              <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_title">Title</th>
+              <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_start" style="width:80px">Start</th>
+              <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_end" style="width:80px">End</th>
+              <th class="pb-2" style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="range-tbody">
+            <tr id="range-empty-row">
+              <td colspan="5" class="py-6 text-center text-xs" data-i18n="uk_step3_empty" style="color:var(--text-dim)">No ranges — upload CSV or click Add Range</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">4</span>
+        <h2 class="text-sm font-semibold" data-i18n="uk_step4_title">Process</h2>
+      </div>
+      <button id="process-btn" class="btn btn-primary w-full" disabled>
+        <i data-lucide="play" class="w-4 h-4"></i> <span data-i18n="uk_step4_btn">Start Splitting</span>
+      </button>
+      <p id="process-hint" class="text-xs text-center mt-2" data-i18n="uk_step4_hint" style="color:var(--text-dim)">Please select a PDF and configure at least one range</p>
+      <div id="progress-section" class="hidden mt-4 fade-in">
+        <div class="flex items-center justify-between mb-2">
+          <span id="progress-stage" class="text-xs font-medium" style="color:var(--primary)"></span>
+          <span id="progress-percent" class="text-xs" style="color:var(--text-dim)"></span>
+        </div>
+        <div class="w-full rounded-full h-2 overflow-hidden" style="background:var(--border)">
+          <div id="progress-bar" class="progress-bar h-2 rounded-full" style="width:0%;background:var(--primary)"></div>
+        </div>
+        <p id="progress-msg" class="text-xs mt-2" style="color:var(--text-dim)"></p>
+      </div>
+      <div id="error-section" class="hidden mt-4 p-3 rounded-lg fade-in" style="background:#fef2f2;border:1px solid #fecaca">
+        <div class="flex gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i><p id="error-msg" class="text-sm text-red-700"></p></div>
+      </div>
+    </section>
+    <section id="results-section" class="hidden card p-5 sm:p-6 fade-in">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:#d1fae5;color:#065f46"><i data-lucide="check" class="w-3 h-3"></i></span>
+        <h2 class="text-sm font-semibold" data-i18n="uk_result_title">Results</h2>
+      </div>
+      <div id="files-list" class="space-y-2 mb-4"></div>
+      <button id="download-all-btn" class="btn btn-ghost w-full border" style="border-color:var(--border)">
+        <i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="uk_result_dl_all">Download All as ZIP</span>
+      </button>
+    </section>
+  </main>
+
+  <!-- ====== TAB: US (TransferSKU) ====== -->
+  <main id="tab-us" class="hidden flex-1 space-y-4 fade-in" role="tabpanel">
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">1</span>
+        <h2 class="text-sm font-semibold" data-i18n="us_step1_title">Upload SKU Label PDF</h2>
+      </div>
+      <div id="us-pdf-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select PDF file">
+        <input type="file" id="us-pdf-input" accept=".pdf" aria-hidden="true">
+        <i data-lucide="file-text" class="w-8 h-8 mx-auto mb-2" style="color:var(--text-dim)"></i>
+        <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step1_hint">or drag PDF here</span></p>
+        <p class="text-xs" data-i18n="us_step1_hint" style="color:var(--text-dim)">Supports PDFs with "Single SKU" markers</p>
+        <p id="us-pdf-file-name" class="text-xs hidden" style="color:var(--primary)"></p>
+      </div>
+    </section>
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">2</span>
+        <h2 class="text-sm font-semibold" data-i18n="us_step2_title">Grid Layout Settings</h2>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_rows">Rows</label><input id="us-rows" type="number" value="3" min="1" max="10" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_cols">Columns</label><input id="us-cols" type="number" value="2" min="1" max="10" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+      </div>
+      <button id="us-adv-toggle" class="btn btn-ghost text-xs w-full" style="min-height:32px" type="button"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i> <span data-i18n="us_step2_adv">Advanced Margin Settings</span></button>
+      <div id="us-adv-panel" class="hidden mt-3 pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3" style="border-top:1px solid var(--border)">
+        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_ml">Left Margin</label><input id="us-ml" type="number" value="0" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_mt">Top Margin</label><input id="us-mt" type="number" value="40" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_mr">Right Margin</label><input id="us-mr" type="number" value="0" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text_dim)" data-i18n="us_step2_mb">Bottom Margin</label><input id="us-mb" type="number" value="40" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+      </div>
+    </section>
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center gap-2 mb-4"><span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">3</span><h2 class="text-sm font-semibold" data-i18n="us_step3_title">Process</h2></div>
+      <button id="us-process-btn" class="btn btn-primary w-full" disabled><i data-lucide="play" class="w-4 h-4"></i> <span data-i18n="us_step3_btn">Start Conversion</span></button>
+      <p id="us-process-hint" class="text-xs text-center mt-2" data-i18n="us_step3_hint" style="color:var(--text-dim)">Please select a PDF file first</p>
+      <div id="us-progress-section" class="hidden mt-4 fade-in">
+        <div class="flex items-center justify-between mb-2"><span id="us-progress-stage" class="text-xs font-medium" style="color:var(--primary)"></span><span id="us-progress-percent" class="text-xs" style="color:var(--text-dim)"></span></div>
+        <div class="w-full rounded-full h-2 overflow-hidden" style="background:var(--border)"><div id="us-progress-bar" class="progress-bar h-2 rounded-full" style="width:0%;background:var(--primary)"></div></div>
+        <p id="us-progress-msg" class="text-xs mt-2" style="color:var(--text-dim)"></p>
+      </div>
+      <div id="us-error-section" class="hidden mt-4 p-3 rounded-lg fade-in" style="background:#fef2f2;border:1px solid #fecaca"><div class="flex gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i><p id="us-error-msg" class="text-sm text-red-700"></p></div></div>
+    </section>
+    <section id="us-results-section" class="hidden card p-5 sm:p-6 fade-in">
+      <h2 class="text-sm font-semibold mb-3" data-i18n="us_result_title">Export Results</h2>
+      <div id="us-files-list" class="space-y-2 mb-4"></div>
+      <button id="us-download-all-btn" class="btn btn-ghost w-full border" style="border-color:var(--border)"><i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="uk_result_dl_all">Download All as ZIP</span></button>
+    </section>
+  </main>
+
+  <!-- ====== TAB: AU (placeholder) ====== -->
+  <main id="tab-au" class="hidden flex-1 fade-in" role="tabpanel">
+    <section class="card p-10 sm:p-14 text-center">
+      <i data-lucide="hammer" class="w-12 h-12 mx-auto mb-4" style="color:var(--text-dim)"></i>
+      <h2 class="text-lg font-semibold mb-2" data-i18n="au_dev_title">AU Version — Under Development</h2>
+      <p class="text-sm" data-i18n="au_dev_desc" style="color:var(--text-dim);max-width:320px;margin:0 auto">Amazon Australia FBA label splitting is under development. Stay tuned.</p>
+      <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs" style="background:var(--primary-bg);color:var(--primary)"><i data-lucide="clock" class="w-3.5 h-3.5"></i> <span data-i18n="au_dev_eta">ETA: 2026 Q3</span></div>
+    </section>
+  </main>
+
+  <!-- ====== TAB: About ====== -->
+  <main id="tab-about" class="hidden flex-1 space-y-4 fade-in" role="tabpanel">
+    <nav class="flex gap-2 flex-wrap" role="tablist">
+      <button class="nav-btn active" data-about-sub="log"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <span data-i18n="about_log">Logs</span></button>
+      <button class="nav-btn" data-about-sub="theme"><i data-lucide="palette" class="w-3.5 h-3.5"></i> <span data-i18n="about_theme">Theme</span></button>
+      <button class="nav-btn" data-about-sub="user"><i data-lucide="user" class="w-3.5 h-3.5"></i> <span data-i18n="about_user">User Info</span></button>
+      <button class="nav-btn" data-about-sub="dev"><i data-lucide="code" class="w-3.5 h-3.5"></i> <span data-i18n="about_dev">Developer</span></button>
+    </nav>
+    <section id="about-log" class="card p-5 sm:p-6 fade-in" role="tabpanel">
+      <h3 class="text-sm font-semibold mb-3" data-i18n="about_log_title">Processing Logs</h3>
+      <p class="text-xs mb-4" data-i18n="about_log_desc" style="color:var(--text-dim)">Record of each upload and processing task</p>
+      <div id="log-entries" class="divide-y" style="border-color:var(--border)"><p class="text-xs py-4" data-i18n="about_log_empty" style="color:var(--text-dim)">No log records</p></div>
+      <button id="clear-log-btn" class="btn btn-ghost text-xs mt-3" style="min-height:32px;padding:4px 12px"><i data-lucide="trash-2" class="w-3 h-3"></i> <span data-i18n="about_log_clear">Clear Logs</span></button>
+    </section>
+    <section id="about-theme" class="hidden card p-5 sm:p-6 fade-in" role="tabpanel">
+      <h3 class="text-sm font-semibold mb-3" data-i18n="about_theme_title">Theme Settings</h3>
+      <p class="text-xs mb-5" data-i18n="about_theme_desc" style="color:var(--text-dim)">Choose a theme to apply instantly</p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-water"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#4a7c59,#7ba587)"></div><p class="text-xs font-medium" data-i18n="about_theme_water">Water Lilies</p><p class="text-xs" style="color:var(--text-dim)">Water Lilies</p></button>
+        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-sunrise"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#c97d3b,#e0a56f)"></div><p class="text-xs font-medium" data-i18n="about_theme_sunrise">Sunrise</p><p class="text-xs" style="color:var(--text-dim)">Sunrise</p></button>
+        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-garden"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#7c5cbf,#a78fcf)"></div><p class="text-xs font-medium" data-i18n="about_theme_garden">Garden</p><p class="text-xs" style="color:var(--text-dim)">Garden</p></button>
+        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-dark"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#6366f1,#a5b4fc)"></div><p class="text-xs font-medium" data-i18n="about_theme_dark">Dark Mode</p><p class="text-xs" style="color:var(--text-dim)">Dark Mode</p></button>
+      </div>
+    </section>
+    <section id="about-user" class="hidden card p-5 sm:p-6 fade-in" role="tabpanel">
+      <h3 class="text-sm font-semibold mb-4" data-i18n="about_user_title">Personal Info</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_ip" style="color:var(--text-dim)">IP Address</span><span id="user-ip" class="text-sm font-medium" data-i18n="loading">Loading...</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_lang" style="color:var(--text-dim)">Language</span><span id="user-lang" class="text-sm font-medium">Loading...</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_browser" style="color:var(--text-dim)">Browser</span><span id="user-browser" class="text-sm font-medium">Loading...</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_os" style="color:var(--text-dim)">Operating System</span><span id="user-os" class="text-sm font-medium">Loading...</span></div>
+        <div class="flex justify-between items-center py-2"><span class="text-xs" data-i18n="about_user_screen" style="color:var(--text-dim)">Screen Resolution</span><span id="user-screen" class="text-sm font-medium">Loading...</span></div>
+      </div>
+    </section>
+    <section id="about-dev" class="hidden card p-5 sm:p-6 fade-in" role="tabpanel">
+      <h3 class="text-sm font-semibold mb-3" data-i18n="about_dev_title">Developer Info</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_name" style="color:var(--text-dim)">Developer</span><span class="text-sm font-medium">Mark</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_engine" style="color:var(--text-dim)">Backend Engine</span><span class="text-sm font-medium">Python + PyMuPDF</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_web" style="color:var(--text-dim)">Web Framework</span><span class="text-sm font-medium">Flask + Jinja2</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_frontend" style="color:var(--text-dim)">Frontend</span><span class="text-sm font-medium">Tailwind CSS + Lucide Icons</span></div>
+        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_ai" style="color:var(--text-dim)">AI Collaboration</span><span class="text-sm font-medium">Claude</span></div>
+        <div class="py-3 mt-2"><p class="text-xs leading-relaxed" data-i18n="about_dev_footer" style="color:var(--text-dim)">Built by markblogforpublic.github.io & Claude</p></div>
+      </div>
+    </section>
+  </main>
+
+  </div><!-- /#main-content -->
+
+  <!-- ====== CLI Main View (full-screen terminal mode) ====== -->
+  <div id="cli-main-view" class="hidden flex-1 flex flex-col min-h-0 fade-in">
+    <!-- Top bar -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded flex items-center justify-center" style="background:var(--primary)">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-white"></i>
+        </span>
+        <span class="text-sm font-semibold" data-i18n="cli_terminal_title">CLI Terminal</span>
+        <span class="text-xs px-2 py-0.5 rounded" style="background:var(--primary-bg);color:var(--primary)">FBA Label Splitter</span>
+      </div>
+      <button id="cli-exit-btn" class="btn btn-ghost text-xs" style="min-height:32px;padding:4px 14px">
+        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> <span data-i18n="cli_return_gui">Return to GUI</span>
+      </button>
+    </div>
+    <!-- Left-right split -->
+    <div class="flex gap-3 flex-1 min-h-0">
+      <!-- Left: terminal -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <div id="cli-output" class="flex-1 overflow-y-auto rounded-lg p-4 font-mono text-xs" style="background:#1a1a2e;color:#a5b4fc">
+          <div id="cli-output-content">
+            <div style="color:#6ee7b7">╔══════════════════════════════════════════╗</div>
+            <div style="color:#6ee7b7"><span data-i18n="cli_welcome_line1">║   FBA Label Splitter CLI v2.5          ║</span></div>
+            <div style="color:#6ee7b7">╚══════════════════════════════════════════╝</div>
+            <div style="color:#9999b3" data-i18n="cli_welcome_line2">Type 'help' for available commands.</div>
+            <div style="color:#9999b3" data-i18n="cli_welcome_line3">Press up/down arrow for command history.</div>
+            <div>&nbsp;</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-2 p-2 rounded-lg" style="background:var(--surface);border:1px solid var(--border)">
+          <span class="text-sm font-mono flex-shrink-0" style="color:var(--primary)">$</span>
+          <input id="cli-input" type="text" data-i18n-placeholder="cli_input_placeholder" placeholder="Enter command, e.g.: help  /  region uk  /  pdf C:\labels.pdf ..."
+            class="flex-1 bg-transparent border-none outline-none text-sm font-mono px-1"
+            style="color:var(--text)" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <!-- Right: reference panel -->
+      <div class="flex-shrink-0 flex flex-col" style="width:320px">
+        <div id="cli-reference" class="flex-1 overflow-y-auto rounded-lg p-4 text-xs font-mono" style="background:var(--surface);border:1px solid var(--border)">
+          <div style="color:var(--text);margin-bottom:8px;font-weight:700;font-size:12px" data-i18n="cli_ref_title"><i data-lucide="book-open" class="w-3.5 h-3.5 inline"></i>  Command Reference</div>
+          <div style="color:var(--text-dim);margin-bottom:8px;font-size:10px" data-i18n="cli_ref_hint">Type <b>help</b> in terminal for full guide with examples</div>
+
+          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_uk_mode">── UK / AU Mode ──</div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>region</b> uk|au       <span style="opacity:0.5">Switch mode</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>pdf</b> &lt;path&gt;        <span style="opacity:0.5">Load FBA label PDF</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>csv</b> &lt;path&gt;        <span style="opacity:0.5">Load packing list</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range add</b> s e [t]  <span style="opacity:0.5">Add label range</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range list</b>        <span style="opacity:0.5">List all ranges</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range clear</b>       <span style="opacity:0.5">Clear ranges</span></div>
+          <div style="color:var(--text_dim);font-size:11px;line-height:1.8"><b>process</b>           <span style="opacity:0.5">Run UK/AU splitting</span></div>
+
+          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_us_mode">── US Mode ──</div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>region</b> us         <span style="opacity:0.5">Switch to US mode</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-pdf</b> &lt;path&gt;    <span style="opacity:0.5">Load US SKU PDF</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-grid</b> r c       <span style="opacity:0.5">Grid: rows x cols</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-margin</b> L T R B  <span style="opacity:0.5">Page margins (pt)</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-process</b>        <span style="opacity:0.5">Run SKU splitting</span></div>
+
+          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_output">── Output ──</div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download</b>          <span style="opacity:0.5">List generated files</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download</b> &lt;name&gt;  <span style="opacity:0.5">Get a specific file</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download-all</b>      <span style="opacity:0.5">Get all as ZIP</span></div>
+
+          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_general">── General ──</div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>help</b>              <span style="opacity:0.5">Full command reference</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>status</b> | info     <span style="opacity:0.5">Show current state</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>history</b>           <span style="opacity:0.5">Command history</span></div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>clear</b>             <span style="opacity:0.5">Clear terminal</span></div>
+
+          <div style="color:var(--text-dim);margin-top:10px;opacity:0.4;font-size:10px;font-style:italic" data-i18n="cli_ref_paths_hint">All file paths must be absolute.<br>Press up / down arrow keys for history.</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#cli-main-view -->
+
+  </div><!-- /#content-area -->
+
+  <footer class="mt-6 pt-4 text-center" style="border-top:1px solid var(--border)">
+    <p class="text-xs" style="color:var(--text-dim)"><span data-i18n="app_title">FBA Label Splitter</span> <span data-i18n="app_version">V2.5</span></p>
+  </footer>
+</div>
+
+<script>
+// ====== I18N — populated by Flask server-side ======
+const I18N_ZH = {{ lang_strings_zh | tojson | safe }};
+const I18N_EN = {{ lang_strings_en | tojson | safe }};
+let I18N = I18N_ZH;
+let LANG = '{{ lang }}';
+
+function t(key) {
+  return I18N[key] || key;
+}
+
+function setLang(lang) {
+  LANG = lang;
+  I18N = lang === 'en' ? I18N_EN : I18N_ZH;
+  localStorage.setItem('fba-lang', lang);
+  refreshI18n();
+}
+
+function refreshI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const text = t(key);
+    if (text) el.textContent = text;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key) || '';
+  });
+  // Update html lang attribute
+  document.getElementById('app-html').setAttribute('lang', LANG === 'zh' ? 'zh-CN' : 'en');
+  // Update lang toggle button title
+  const langBtn = document.getElementById('lang-toggle');
+  if (langBtn) langBtn.title = LANG === 'zh' ? 'Switch to English' : '切换到中文';
+}
+
+// Initialize language from localStorage or server default
+(function initLang() {
+  const saved = localStorage.getItem('fba-lang');
+  if (saved === 'en' || saved === 'zh') {
+    LANG = saved;
+  }
+  I18N = LANG === 'en' ? I18N_EN : I18N_ZH;
+  refreshI18n();
+})();
+
+// Language toggle handler
+document.addEventListener('DOMContentLoaded', function() {
+  const langBtn = document.getElementById('lang-toggle');
+  if (langBtn) {
+    langBtn.addEventListener('click', function() {
+      setLang(LANG === 'zh' ? 'en' : 'zh');
+    });
+  }
+});
+
+// ====== End I18N ======
+
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const S={pdfFile:null,csvFile:null,jobId:null,polling:null,theme:localStorage.getItem('fba-theme')||'theme-water',rangeCounter:0};
+function applyTheme(name){
+  document.body.className=document.body.className.replace(/theme-\w+/g,'')+' '+name;
+  S.theme=name;localStorage.setItem('fba-theme',name);
+  $$('.theme-swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===name));
+  $$('.theme-card').forEach(c=>c.style.outline=c.dataset.theme===name?'2px solid var(--primary)':'');
+}
+applyTheme(S.theme);
+document.getElementById('theme-switcher-mini').addEventListener('click',e=>{const sw=e.target.closest('.theme-swatch');if(!sw)return;applyTheme(sw.dataset.theme)});
+$$('.theme-card').forEach(c=>c.addEventListener('click',()=>applyTheme(c.dataset.theme)));
+S.region='uk';
+function setRegion(r){
+  S.region=r;const badge=$('#region-badge');if(badge)badge.textContent=r.toUpperCase();
+  S.pdfFile=null;S.csvFile=null;
+  $$('#pdf-file-name,#csv-file-name').forEach(e=>e.classList.add('hidden'));
+  $$('#pdf-drop-zone p:first-of-type,#csv-drop-zone p:first-of-type').forEach(e=>e.classList.remove('hidden'));
+  $$('#pdf-input,#csv-input').forEach(e=>e.value='');
+  $$('#range-tbody tr[id^="range-row-"]').forEach(r=>r.remove());
+  const empty=$('#range-empty-row');if(empty)empty.remove();
+  const tbody=$('#range-tbody');if(!tbody.querySelector('tr'))tbody.innerHTML='<tr id="range-empty-row"><td colspan="5" class="py-6 text-center text-xs" style="color:var(--text-dim)">' + t('uk_step3_empty') + '</td></tr>';
+  updateRangeCount();updateBtn();
+}
+$$('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('[data-tab]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false')});
+  btn.classList.add('active');btn.setAttribute('aria-selected','true');
+  const t=btn.dataset.tab;
+  ['uk','au','us','about'].forEach(id=>{const el=$('#tab-'+id);if(el)el.classList.add('hidden')});
+  if(t==='uk'||t==='au'){setRegion(t);$('#tab-uk').classList.remove('hidden');$('#tab-uk').classList.add('fade-in')}
+  else if(t==='us'){$('#tab-us').classList.remove('hidden');$('#tab-us').classList.add('fade-in')}
+  else if(t==='about'){$('#tab-about').classList.remove('hidden');$('#tab-about').classList.add('fade-in');$$('[data-about-sub]')[0].click();loadLogs();loadUserInfo()}
+}));
+$$('[data-about-sub]').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('[data-about-sub]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  ['log','theme','user','dev'].forEach(id=>{const el=$('#about-'+id);el.classList.toggle('hidden',btn.dataset.aboutSub!==id)});
+  if(btn.dataset.aboutSub==='user')loadUserInfo();
+}));
+function setupDrop(zoneId,inputId,nameId,exts,onFile){
+  const zone=$(zoneId),input=$(inputId),nameEl=$(nameId);
+  const extList=Array.isArray(exts)?exts:[exts];
+  zone.addEventListener('click',()=>input.click());
+  zone.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click()}});
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&extList.some(ext=>f.name.toLowerCase().endsWith(ext))){input.files=e.dataTransfer.files;input.dispatchEvent(new Event('change'))}});
+  input.addEventListener('change',()=>{const f=input.files[0];if(f){onFile(f);nameEl.textContent=f.name;nameEl.classList.remove('hidden');zone.querySelector('p:first-of-type').classList.add('hidden')}else{onFile(null);nameEl.classList.add('hidden');zone.querySelector('p:first-of-type').classList.remove('hidden')}updateBtn();if(inputId==='#csv-input'&&S.csvFile)previewCSV(S.csvFile)});
+}
+setupDrop('#pdf-drop-zone','#pdf-input','#pdf-file-name','.pdf',f=>S.pdfFile=f);
+setupDrop('#csv-drop-zone','#csv-input','#csv-file-name',['.csv','.xlsx','.xls'],f=>S.csvFile=f);
+function updateBtn(){const b=$('#process-btn'),r=getRanges();if(S.pdfFile&&r.length>0){b.disabled=false;$('#process-hint').classList.add('hidden')}else{b.disabled=true;$('#process-hint').classList.remove('hidden')}}
+function addRangeRow(title='',start='',end=''){
+  const tbody=$('#range-tbody'),empty=$('#range-empty-row');if(empty)empty.remove();
+  S.rangeCounter++;const id=S.rangeCounter;
+  const tr=document.createElement('tr');tr.id='range-row-'+id;tr.className='fade-in';tr.style.borderBottom='1px solid var(--border)';
+  tr.innerHTML=`<td class="py-2 text-xs" style="color:var(--text-dim)">${id}</td><td class="py-2 pr-2"><input id="rtitle-${id}" value="${title.replace(/"/g,'&quot;')}" placeholder="${t('uk_placeholder')}" class="w-full bg-transparent text-sm px-2 py-1.5 rounded border outline-none" style="border-color:var(--border);color:var(--text);min-width:100px" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></td><td class="py-2 pr-2"><input id="rstart-${id}" value="${start}" placeholder="0" type="number" class="w-full bg-transparent text-sm px-2 py-1.5 rounded border outline-none" style="border-color:var(--border);color:var(--text);width:70px" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" onchange="updateBtn()"></td><td class="py-2 pr-2"><input id="rend-${id}" value="${end}" placeholder="58" type="number" class="w-full bg-transparent text-sm px-2 py-1.5 rounded border outline-none" style="border-color:var(--border);color:var(--text);width:70px" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" onchange="updateBtn()"></td><td class="py-2 text-center"><button onclick="removeRange(${id})" class="p-1 rounded hover:opacity-70 transition-opacity" style="color:var(--text-dim);min-width:28px;min-height:28px" title="${t('delete')}"><i data-lucide="x" class="w-3.5 h-3.5"></i></button></td>`;
+  tbody.appendChild(tr);lucide.createIcons();updateRangeCount();updateBtn();
+}
+function removeRange(id){const el=$('#range-row-'+id);if(el){el.remove();updateRangeCount();updateBtn();const tbody=$('#range-tbody');if(!tbody.querySelector('tr:not(#range-empty-row)')){tbody.innerHTML='<tr id="range-empty-row"><td colspan="5" class="py-6 text-center text-xs" style="color:var(--text-dim)">' + t('uk_step3_empty') + '</td></tr>'}}}
+function getRanges(){const rows=$$('#range-tbody tr[id^="range-row-"]');const out=[];rows.forEach(r=>{const id=r.id.replace('range-row-','');const t=$('#rtitle-'+id)?.value?.trim()||'';const s=parseInt($('#rstart-'+id)?.value);const e=parseInt($('#rend-'+id)?.value);if(!isNaN(s)&&!isNaN(e)&&s<=e)out.push({title:t||`${s}-${e}`,start:s,end:e})});return out}
+function updateRangeCount(){const n=getRanges().length;$('#range-count').textContent=n}
+$('#add-range-btn').addEventListener('click',()=>addRangeRow());
+async function previewCSV(file){
+  const name=file.name.toLowerCase();
+  if(name.endsWith('.xlsx')||name.endsWith('.xls')){
+    try{
+      const fd=new FormData();fd.append('file',file);
+      const r=await fetch('/api/preview-csv',{method:'POST',body:fd});
+      const d=await r.json();
+      if(!r.ok||d.error){console.warn('CSV preview failed:',d.error);return;}
+      const uniq=d.ranges||[];
+      if(!uniq.length)return;
+      $$('#range-tbody tr[id^="range-row-"]').forEach(r=>r.remove());
+      const empty=$('#range-empty-row');if(empty)empty.remove();
+      uniq.forEach(r=>addRangeRow(r.title||'',r.start,r.end));
+      updateBtn();
+    }catch(e){console.warn('CSV preview failed:',e)}
+    return;
+  }
+  const text=await file.text();const found=[];const lines=text.split('\n');
+  for(const line of lines){const cols=line.split(',');if(cols.length<3)continue;const sku=cols[1]?.trim()||'';let matched=false;for(const cell of cols){const m=cell?.trim().match(/FBA[A-Z0-9]+U(\d+)-(\d+)/);if(m&&!matched){found.push({title:sku,start:parseInt(m[1]),end:parseInt(m[2])});matched=true}}}
+  if(!found.length)return;
+  const seen=new Set();const uniq=[];for(const f of found){const k=f.start+'-'+f.end;if(!seen.has(k)){seen.add(k);uniq.push(f)}}
+  uniq.sort((a,b)=>a.start-b.start);if(uniq[0]&&uniq[0].start===1)uniq[0].start=0;
+  $$('#range-tbody tr[id^="range-row-"]').forEach(r=>r.remove());const empty=$('#range-empty-row');if(empty)empty.remove();
+  uniq.forEach(r=>addRangeRow(r.title,r.start,r.end));updateBtn();
+}
+$('#process-btn').addEventListener('click',async()=>{
+  const ranges=getRanges();if(!S.pdfFile||!ranges.length)return;
+  $('#error-section').classList.add('hidden');$('#results-section').classList.add('hidden');$('#progress-section').classList.remove('hidden');$('#process-btn').disabled=true;
+  const fd=new FormData();fd.append('pdf',S.pdfFile);if(S.csvFile)fd.append('csv',S.csvFile);fd.append('ranges',JSON.stringify(ranges));
+  try{const r=await fetch('/api/process',{method:'POST',body:fd});const d=await r.json();if(!r.ok)throw new Error(d.error||t('error'));S.jobId=d.job_id;startPoll()}catch(e){showErr(e.message);resetBtn()}
+});
+function startPoll(){if(S.polling)clearInterval(S.polling);S.polling=setInterval(async()=>{if(!S.jobId)return;try{const r=await fetch('/api/progress/'+S.jobId);const d=await r.json();updProgress(d);if(d.status==='done'){clearInterval(S.polling);S.polling=null;showRes(d.result);resetBtn();addLog(d.result)}else if(d.status==='error'){clearInterval(S.polling);S.polling=null;showErr(d.error||t('error'));resetBtn()}}catch(e){}},500)}
+function updProgress(d){const p=d.progress||{};$('#progress-stage').textContent=p.stage==='scan'?t('uk_progress_scan'):t('uk_progress_split');const pct=p.total>0?Math.round(p.current/p.total*100):0;$('#progress-percent').textContent=pct+'%';$('#progress-bar').style.width=pct+'%';$('#progress-msg').textContent=p.message||''}
+function resetBtn(){const b=$('#process-btn');b.disabled=false;b.innerHTML='<i data-lucide="play" class="w-4 h-4"></i> '+t('uk_step4_btn');lucide.createIcons()}
+function showErr(m){$('#error-section').classList.remove('hidden');$('#error-msg').textContent=m;$('#progress-section').classList.add('hidden')}
+function showRes(result){
+  $('#progress-section').classList.add('hidden');$('#results-section').classList.remove('hidden');
+  const l=$('#files-list');l.innerHTML='';result.files.forEach((fname,i)=>{const range=result.ranges[i]||{};const title=range.title||'';const d=document.createElement('div');d.className='flex items-center justify-between p-3 rounded-lg border transition-colors';d.style.cssText='background:var(--surface);border-color:var(--border)';d.innerHTML=`<div class="flex items-center gap-3 min-w-0"><i data-lucide="file-text" class="w-5 h-5 flex-shrink-0" style="color:var(--primary)"></i><div class="min-w-0"><p class="text-sm font-medium truncate">${fname}</p><p class="text-xs" style="color:var(--text-dim)">${title?title+' · ':''}${t('uk_step3_col_start')} [${range.start||0}-${range.end||0}]</p></div></div><a href="/api/download/${S.jobId}/${fname}" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0" style="color:var(--primary);min-width:44px;min-height:44px;display:inline-flex;align-items:center" onmouseover="this.style.background='var(--primary-bg)'" onmouseout="this.style.background='transparent'"><i data-lucide="download" class="w-3.5 h-3.5"></i> ${t('download')}</a>`;l.appendChild(d)});lucide.createIcons()}
+$('#download-all-btn').addEventListener('click',()=>{if(S.jobId)window.location.href='/api/download-all/'+S.jobId});
+function addLog(result){const region=S.region==='au'?'AU':'UK';const src=(result.source||'Manual')+' ['+region+']';fetch('/api/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:src,files:result.files.length,ranges:result.ranges.length,files_list:result.files.join(', ')})}).catch(()=>{});let logs=JSON.parse(localStorage.getItem('fba-logs')||'[]');logs.unshift({time:new Date().toLocaleString(),source:src,files:result.files.length,ranges:result.ranges.length,filesList:result.files.join(', ')});if(logs.length>50)logs=logs.slice(0,50);localStorage.setItem('fba-logs',JSON.stringify(logs))}
+async function loadLogs(){const el=$('#log-entries');try{const r=await fetch('/api/log');const logs=await r.json();if(!logs.length){el.innerHTML='<p class="text-xs py-4" style="color:var(--text-dim)">' + t('about_log_empty') + '</p>';return}el.innerHTML=logs.map(l=>`<div class="log-row"><span class="text-xs" style="color:var(--text-dim)">${l.time||''}</span><span class="text-xs truncate" title="${l.files_list||''}">${l.files||0} ${t('download')} · ${t('about_log_source')||'Source'}: ${l.source||'?'}</span><span class="text-xs" style="color:var(--text-dim)">${l.ranges||0} ${t('uk_step3_col_start').toLowerCase()||'ranges'}</span></div>`).join('');return}catch(e){}const logs=JSON.parse(localStorage.getItem('fba-logs')||'[]');if(!logs.length){el.innerHTML='<p class="text-xs py-4" style="color:var(--text-dim)">' + t('about_log_empty') + '</p>';return}el.innerHTML=logs.map(l=>`<div class="log-row"><span class="text-xs" style="color:var(--text-dim)">${l.time||''}</span><span class="text-xs truncate" title="${l.filesList||''}">${l.files||0} ${t('download')} · ${t('about_log_source')||'Source'}: ${l.source||'?'}</span><span class="text-xs" style="color:var(--text_dim)">${l.ranges||0} ${t('uk_step3_col_start').toLowerCase()||'ranges'}</span></div>`).join('')}
+$('#clear-log-btn').addEventListener('click',async()=>{localStorage.removeItem('fba-logs');try{await fetch('/api/log',{method:'DELETE'})}catch(e){};loadLogs()});
+async function loadUserInfo(){$('#user-lang').textContent=navigator.language||t('unknown');try{const ua=navigator.userAgentData?.brands;$('#user-browser').textContent=ua?ua.map(b=>b.brand).join(', '):(navigator.userAgent.split(') ')[1]||navigator.appName)}catch(e){$('#user-browser').textContent=navigator.appName}$('#user-os').textContent=navigator.platform||t('unknown');$('#user-screen').textContent=screen.width+'×'+screen.height;try{const r=await fetch('https://api.ipify.org?format=json');const d=await r.json();$('#user-ip').textContent=d.ip}catch(e){$('#user-ip').textContent=t('error')}}
+const US={pdfFile:null,jobId:null,polling:null};
+setupDrop('#us-pdf-drop-zone','#us-pdf-input','#us-pdf-file-name','.pdf',f=>{US.pdfFile=f;usUpdateBtn()});
+function usUpdateBtn(){const b=$('#us-process-btn');b.disabled=!US.pdfFile;if(US.pdfFile)$('#us-process-hint').classList.add('hidden');else $('#us-process-hint').classList.remove('hidden')}
+$('#us-adv-toggle').addEventListener('click',()=>{const p=$('#us-adv-panel');const open=!p.classList.contains('hidden');p.classList.toggle('hidden');$('#us-adv-toggle').innerHTML=open?'<i data-lucide="chevron-right" class="w-3.5 h-3.5"></i> '+t('us_step2_adv'):'<i data-lucide="chevron-down" class="w-3.5 h-3.5"></i> '+t('us_step2_hide_adv');lucide.createIcons()});
+$('#us-process-btn').addEventListener('click',async()=>{if(!US.pdfFile)return;$('#us-error-section').classList.add('hidden');$('#us-results-section').classList.add('hidden');$('#us-progress-section').classList.remove('hidden');$('#us-process-btn').disabled=true;const fd=new FormData();fd.append('pdf',US.pdfFile);fd.append('rows',$('#us-rows').value);fd.append('cols',$('#us-cols').value);fd.append('ml',$('#us-ml').value);fd.append('mt',$('#us-mt').value);fd.append('mr',$('#us-mr').value);fd.append('mb',$('#us-mb').value);try{const r=await fetch('/api/us-process',{method:'POST',body:fd});const d=await r.json();if(!r.ok)throw new Error(d.error||t('error'));US.jobId=d.job_id;usStartPoll()}catch(e){usShowErr(e.message);usResetBtn()}});
+function usStartPoll(){if(US.polling)clearInterval(US.polling);US.polling=setInterval(async()=>{if(!US.jobId)return;try{const r=await fetch('/api/progress/'+US.jobId);const d=await r.json();usUpdProgress(d);if(d.status==='done'){clearInterval(US.polling);US.polling=null;usShowRes(d.result);usResetBtn();usAddLog(d.result)}else if(d.status==='error'){clearInterval(US.polling);US.polling=null;usShowErr(d.error||t('error'));usResetBtn()}}catch(e){}},500)}
+function usUpdProgress(d){const p=d.progress||{};$('#us-progress-stage').textContent=p.stage==='scan'?t('us_progress_scan'):t('us_progress_export');const pct=p.total>0?Math.round(p.current/p.total*100):0;$('#us-progress-percent').textContent=pct+'%';$('#us-progress-bar').style.width=pct+'%';$('#us-progress-msg').textContent=p.message||''}
+function usResetBtn(){const b=$('#us-process-btn');b.disabled=false;b.innerHTML='<i data-lucide="play" class="w-4 h-4"></i> '+t('us_step3_btn');lucide.createIcons()}
+function usShowErr(m){$('#us-error-section').classList.remove('hidden');$('#us-error-msg').textContent=m;$('#us-progress-section').classList.add('hidden')}
+function usShowRes(result){$('#us-progress-section').classList.add('hidden');$('#us-results-section').classList.remove('hidden');const l=$('#us-files-list');l.innerHTML='';result.files.forEach((fname,i)=>{const sku=result.skus?.[i]||'';const d=document.createElement('div');d.className='flex items-center justify-between p-3 rounded-lg border transition-colors';d.style.cssText='background:var(--surface);border-color:var(--border)';d.innerHTML=`<div class="flex items-center gap-3 min-w-0"><i data-lucide="package" class="w-5 h-5 flex-shrink-0" style="color:var(--primary)"></i><div class="min-w-0"><p class="text-sm font-medium truncate">${fname}</p>${sku?`<p class="text-xs" style="color:var(--text-dim)">SKU: ${sku}</p>`:''}</div></div><a href="/api/download/${US.jobId}/${fname}" download class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0" style="color:var(--primary);min-width:44px;min-height:44px;display:inline-flex;align-items:center" onmouseover="this.style.background='var(--primary-bg)'" onmouseout="this.style.background='transparent'"><i data-lucide="download" class="w-3.5 h-3.5"></i> ${t('download')}</a>`;l.appendChild(d)});lucide.createIcons()}
+$('#us-download-all-btn').addEventListener('click',()=>{if(US.jobId)window.location.href='/api/download-all/'+US.jobId});
+function usAddLog(result){const src=(result.source||'US TransferSKU')+' [US]';fetch('/api/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:src,files:result.files.length,ranges:0,files_list:result.files.join(', ')})}).catch(()=>{})}
+// ====== Login System ======
+let AUTH={loggedIn:false,username:'',permissions:{}};
+async function initAuth(){
+  try{
+    const cr=await fetch('/api/config');const cfg=await cr.json();
+    if(!cfg.login_required){AUTH.loggedIn=true;return;}
+    const sr=await fetch('/api/session');const s=await sr.json();
+    if(s.logged_in){AUTH.loggedIn=true;AUTH.username=s.username;AUTH.permissions=s.permissions||{};applyPermissions();return;}
+    showLogin();
+  }catch(e){AUTH.loggedIn=true;}
+}
+function showLogin(){
+  const ov=$('#login-overlay');if(ov)ov.classList.remove('hidden');
+  $('#app-container').style.filter='blur(4px)';
+  $('#login-user').focus();
+}
+function hideLogin(){
+  const ov=$('#login-overlay');if(ov)ov.classList.add('hidden');
+  $('#app-container').style.filter='none';
+}
+function applyPermissions(){
+  const regions=AUTH.permissions.regions||[];
+  $$('[data-tab]').forEach(btn=>{
+    const t=btn.dataset.tab;
+    if(t==='uk'&&!regions.includes('uk'))btn.style.display='none';
+    if(t==='au'&&!regions.includes('au'))btn.style.display='none';
+    if(t==='us'&&!regions.includes('us'))btn.style.display='none';
+  });
+  if(!AUTH.permissions.cli){
+    const ref=$('#cli-reference');
+    if(ref)ref.innerHTML='<div style="color:var(--danger);font-size:11px">'+t('no_permission')+'</div>';
+  }
+}
+$('#login-btn').addEventListener('click',async()=>{
+  const u=$('#login-user').value.trim(),p=$('#login-pass').value;
+  if(!u){$('#login-error').textContent=t('login_error_enter_user');$('#login-error').classList.remove('hidden');return;}
+  try{
+    const remember=$('#login-remember')?.checked||false;
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,remember:remember})});
+    const d=await r.json();
+    if(!r.ok){$('#login-error').textContent=d.error||t('login_error_failed');$('#login-error').classList.remove('hidden');return;}
+    AUTH.loggedIn=true;AUTH.username=d.username;AUTH.permissions=d.permissions||{};
+    hideLogin();updateUserArea();applyPermissions();initCLI();
+  }catch(e){$('#login-error').textContent=t('login_error_network');$('#login-error').classList.remove('hidden');}
+});
+$('#login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('#login-btn').click()});
+
+// ====== CLI Terminal ======
+const CLI={sessionId:'cli_'+Math.random().toString(36).slice(2,10),history:[],histIdx:-1,visible:false};
+function initCLI(){
+  fetch('/api/config').then(r=>r.json()).then(cfg=>{
+    if(cfg.cli_mode&&(AUTH.loggedIn||!cfg.login_required)){
+      if(!AUTH.loggedIn||AUTH.permissions.cli!==false){
+        CLI.visible=true;
+        const main=$('#main-content');
+        const cli=$('#cli-main-view');
+        if(main)main.classList.add('hidden');
+        if(cli){cli.classList.remove('hidden');lucide.createIcons();}
+      }
+    }
+  });
+}
+$('#cli-exit-btn').addEventListener('click',()=>{
+  const main=$('#main-content');
+  const cli=$('#cli-main-view');
+  if(main)main.classList.remove('hidden');
+  if(cli)cli.classList.add('hidden');
+  CLI.visible=false;
+});
+function cliOutput(text,isError){
+  const cnt=$('#cli-output-content');
+  const div=document.createElement('div');
+  div.textContent=text;
+  div.style.color=isError?'#f87171':'#a5b4fc';
+  if(text.startsWith('$'))div.style.color='#6ee7b7';
+  cnt.appendChild(div);
+  const out=$('#cli-output');out.scrollTop=out.scrollHeight;
+}
+function cliAppend(text){const cnt=$('#cli-output-content');const div=document.createElement('div');div.textContent=text;cnt.appendChild(div);}
+$('#cli-input').addEventListener('keydown',async function(e){
+  if(e.key==='Enter'){
+    const cmd=this.value.trim();if(!cmd)return;
+    CLI.history.push(cmd);CLI.histIdx=CLI.history.length;
+    this.value='';
+    cliAppend('$ '+cmd);
+    try{
+      const r=await fetch('/api/cli',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:CLI.sessionId,command:cmd})});
+      const d=await r.json();
+      if(d.output==='__CLEAR__'){$('#cli-output-content').innerHTML='';return;}
+      cliOutput(d.output,d.error);
+    }catch(e){cliOutput('Connection error: '+e.message,true);}
+  }else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    if(CLI.history.length===0)return;
+    if(CLI.histIdx===CLI.history.length)CLI.histIdx=CLI.history.length-1;
+    else if(CLI.histIdx>0)CLI.histIdx--;
+    this.value=CLI.history[CLI.histIdx]||'';
+  }else if(e.key==='ArrowDown'){
+    e.preventDefault();
+    if(CLI.histIdx<CLI.history.length-1){CLI.histIdx++;this.value=CLI.history[CLI.histIdx]||''}
+    else{CLI.histIdx=CLI.history.length;this.value=''}
+  }
+});
+
+// ====== User Area Update ======
+function updateUserArea(){
+  const avatar=$('#user-avatar'), name=$('#user-name'), logout=$('#user-logout-btn');
+  if(!avatar||!name||!logout)return;
+  if(AUTH.loggedIn && AUTH.username){
+    const initial=AUTH.username.charAt(0).toUpperCase();
+    avatar.textContent=initial;
+    avatar.style.background='var(--primary)';
+    avatar.style.color='#fff';
+    name.textContent=AUTH.username;
+    name.style.color='var(--primary)';
+    logout.classList.remove('hidden');
+    logout.addEventListener('click',async()=>{
+      await fetch('/api/logout',{method:'POST'});
+      location.reload();
+    });
+  } else {
+    avatar.textContent='G';
+    avatar.style.background='var(--border)';
+    avatar.style.color='var(--text-dim)';
+    name.textContent=t('guest');
+    name.style.color='var(--text-dim)';
+    logout.classList.add('hidden');
+  }
+}
+
+// ====== Initialize ======
+initAuth().then(()=>{updateUserArea();initCLI();});
+
+lucide.createIcons();updateBtn();usUpdateBtn();
+</script>
+</body>
+</html>

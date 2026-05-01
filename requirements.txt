@@ -1,0 +1,4 @@
+pymupdf>=1.23.0
+flask>=3.0
+customtkinter>=5.2
+openpyxl>=3.0
