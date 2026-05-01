@@ -51,7 +51,7 @@ pip install pymupdf --break-system-packages
 python sku.py
 ```
 
-你会看到类似 Claude Code 风格的交互式命令行：
+你会看到交互式命令行：
 
 ```
 ══════════════════════════════════════════
@@ -75,7 +75,7 @@ python build_exe.py
 
 ## 命令参考 | Command Reference
 
-所有命令支持 `/command` 和 `command` 两种写法（和 Claude Code 风格一致）。
+所有命令支持 `/command` 和 `command` 两种写法。
 
 ### `/region <uk|au|us>` — 切换区域
 
