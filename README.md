@@ -35,7 +35,7 @@ This project does NOT infringe on Amazon's rights. It is an independent, open-so
 
 ```bash
 # Clone the repository
-git clone [https://github.com/yourusername/fba-label-splitter.git](https://github.com/markblogforpublic/IdentifySKU.git)
+git clone https://github.com/markblogforpublic/IdentifySKU.git
 cd fba-label-splitter
 
 # Install dependencies
