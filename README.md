@@ -1,6 +1,8 @@
 # FBA Label Splitter V2.5
 
 **Amazon FBA 标签智能拆分工具** | *Amazon FBA Label Intelligent Splitter*
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-green)]()
 
 Automatically split multi-label PDF sheets into individual SKU/range-based PDF files. Supports UK, AU, and US Amazon marketplace label formats.
 
