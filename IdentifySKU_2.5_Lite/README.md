@@ -8,6 +8,16 @@
 
 ---
 
+**免责声明 (Disclaimer)：**
+
+**本工具为开源公益项目（MIT License），仅供学习与合法用途。使用者须确保所处理的标签文件来源合规，并对自己的操作承担全部责任。开发者不对此工具的误用或任何间接损失负责。This is an open-source, goodwill project. Users are solely responsible for ensuring their usage complies with all applicable laws and regulations.**
+
+**本项目不侵犯 Amazon 的任何权益。 本工具为独立开源 PDF 处理程序，仅根据用户提供的标签编号拆分 PDF，不与 Amazon 网站、API 或服务器发生任何交互，不使用或分发 Amazon 商标、Logo 或专有数据。"FBA" 仅为描述性指示性合理使用。所有处理的标签均为用户自有商业文档。
+This project does NOT infringe on Amazon's rights. It is an independent, open-source PDF utility. It does not access, scrape, or interact with Amazon's services, APIs, or trademarks in any form. "FBA" is used solely in a descriptive, nominative fair-use capacity. All labels processed are the user's own business documents.**
+
+
+
+
 ## 简介 | Introduction
 
 **SKU Label Splitter (Lite)** 是一款轻量级的 Amazon FBA 标签 PDF 拆分工具。它从原版 [FBA Label Splitter V2.5](https://github.com/markblogforpublic/FBA-Label-Splitter) 精简而来，移除了 Flask Web 界面和桌面启动器，仅保留核心 CLI 交互，以最小的系统资源完成标签拆分任务。
