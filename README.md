@@ -199,7 +199,7 @@ If your label format differs, you may need to modify the parsing logic in `main.
 
 ## 👨‍💻 Credits · 致谢
 
-Developed by **[markblogforpublic.github.io](https://markblogforpublic.github.io)** in collaboration with **Claude** (Anthropic).
+Developed by **[markblogforpublic.github.io](https://markblogforpublic.github.io)** 
 
 ---
 
