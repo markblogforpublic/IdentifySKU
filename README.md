@@ -8,6 +8,12 @@ Automatically split multi-label PDF sheets into individual SKU/range-based PDF f
 
 ---
 
+More Version:
+SKU Label Splitter (Lite)
+Amazon FBA 标签智能拆分工具 — 轻量 CLI 版
+Amazon FBA Label Intelligent Splitter — Lightweight CLI Edition
+
+
 **免责声明 (Disclaimer)：**
 
 **本工具为开源公益项目（MIT License），仅供学习与合法用途。使用者须确保所处理的标签文件来源合规，并对自己的操作承担全部责任。开发者不对此工具的误用或任何间接损失负责。This is an open-source, goodwill project. Users are solely responsible for ensuring their usage complies with all applicable laws and regulations.**
