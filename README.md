@@ -15,6 +15,12 @@ This project is licensed under the **GNU Lesser General Public License v3**. See
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
+## 许可证变更说明 / License Change Notice
+
+本项目原采用 MIT 许可证，现已变更为 **GNU Lesser General Public License v3**.
+
+This project was originally licensed under the MIT License, and has been re-licensed under the **GNU Lesser General Public License v3**.
+
 
 ## More Version:SKU Label Splitter (Lite)
 **
