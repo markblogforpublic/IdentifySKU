@@ -2,13 +2,19 @@
 
 **Amazon FBA 标签智能拆分工具** | *Amazon FBA Label Intelligent Splitter*
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue)]()
-[![License](https://img.shields.io/badge/license-MIT-green)]()
+
 
 Automatically split multi-label PDF sheets into individual SKU/range-based PDF files. Supports UK, AU, and US Amazon marketplace label formats.
 
 自动将多标签 PDF 按 SKU / 编号区间拆分为独立 PDF 文件。支持英国、澳洲、美国亚马逊站点标签格式。
 
 ---
+## License
+
+This project is licensed under the **GNU Lesser General Public License v3**. See the [LICENSE](LICENSE) file for details.
+
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
 
 ## More Version:SKU Label Splitter (Lite)
 **
@@ -36,7 +42,7 @@ More Info: Please read its readme.md
 ---
 **免责声明 (Disclaimer)：**
 
-**本工具为开源公益项目（MIT License），仅供学习与合法用途。使用者须确保所处理的标签文件来源合规，并对自己的操作承担全部责任。开发者不对此工具的误用或任何间接损失负责。This is an open-source, goodwill project. Users are solely responsible for ensuring their usage complies with all applicable laws and regulations.**
+
 
 **本项目不侵犯 Amazon 的任何权益。 本工具为独立开源 PDF 处理程序，仅根据用户提供的标签编号拆分 PDF，不与 Amazon 网站、API 或服务器发生任何交互，不使用或分发 Amazon 商标、Logo 或专有数据。"FBA" 仅为描述性指示性合理使用。所有处理的标签均为用户自有商业文档。
 This project does NOT infringe on Amazon's rights. It is an independent, open-source PDF utility. It does not access, scrape, or interact with Amazon's services, APIs, or trademarks in any form. "FBA" is used solely in a descriptive, nominative fair-use capacity. All labels processed are the user's own business documents.**
@@ -202,13 +208,7 @@ Copy the entire `FBA Label Splitter` folder to distribute. The EXE bundles all d
 
 ---
 
-## 📝 License · 许可证
 
-This is an open-source project released under the **MIT License**.
-
-本项目为**开源项目**，采用 **MIT 许可证** 发布。
-
----
 
 ## ⚠️ Document Format Compatibility · 文档格式兼容性
 
