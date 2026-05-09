@@ -2,7 +2,7 @@
 CLI command engine — provides command vocabulary used on the web terminal.
 Each session independently maintains state (region / file paths / ranges etc.).
 """
-import os, json, shutil, uuid, threading, zipfile, io, re
+import os, json, shutil, uuid, zipfile, io, re
 from datetime import datetime
 import lang
 
@@ -18,9 +18,10 @@ sessions = {}  # session_id → CLIState
 
 
 class CLIState:
-    def __init__(self, session_id, temp_dir):
+    def __init__(self, session_id, temp_dir, lang_code='zh'):
         self.session_id = session_id
         self.temp_dir = temp_dir
+        self.lang_code = lang_code
         self.region = 'uk'
         self.pdf_path = None
         self.csv_path = None
@@ -36,10 +37,12 @@ class CLIState:
         self.job_result = None
 
 
-def get_or_create_state(session_id, temp_dir):
+def get_or_create_state(session_id, temp_dir, lang_code='zh'):
     if session_id not in sessions:
         os.makedirs(temp_dir, exist_ok=True)
-        sessions[session_id] = CLIState(session_id, temp_dir)
+        sessions[session_id] = CLIState(session_id, temp_dir, lang_code)
+    else:
+        sessions[session_id].lang_code = lang_code
     return sessions[session_id]
 
 
@@ -139,9 +142,9 @@ TIPS
 """
 
 
-def execute(text, session_id, temp_root):
+def execute(text, session_id, temp_root, lang_code='zh'):
     """Execute a command, returns (output_text, is_error)."""
-    state = get_or_create_state(session_id, os.path.join(temp_root, session_id))
+    state = get_or_create_state(session_id, os.path.join(temp_root, session_id), lang_code)
     state.history.append(text)
 
     cmd, args = parse_command(text)
@@ -153,7 +156,7 @@ def execute(text, session_id, temp_root):
         if handler:
             return handler(state, args, temp_root)
         else:
-            return lang.get('cli_unknown_cmd', 'zh').format(cmd=cmd) + '\n' + lang.get('cli_help_hint', 'zh'), True
+            return lang.get('cli_unknown_cmd', state.lang_code).format(cmd=cmd) + '\n' + lang.get('cli_help_hint', state.lang_code), True
     except Exception as e:
         return f"Error: {e}", True
 
@@ -181,10 +184,10 @@ def _cmd_region(state, args, _root):
         return f"Current region: {state.region.upper()}\nUsage: region <uk|au|us>", False
     r = args[0].lower()
     if r not in ('uk', 'au', 'us'):
-        return lang.get('cli_invalid_region', 'zh'), True
+        return lang.get('cli_invalid_region', state.lang_code), True
     state.region = r
     state.reset_job()
-    return lang.get('cli_region_set', 'zh').format(r=r.upper()), False
+    return lang.get('cli_region_set', state.lang_code).format(r=r.upper()), False
 
 
 def _cmd_pdf(state, args, _root):
@@ -196,7 +199,7 @@ def _cmd_pdf(state, args, _root):
         return err, True
     state.pdf_path = path
     state.reset_job()
-    return lang.get('cli_pdf_loaded', 'zh').format(path=path), False
+    return lang.get('cli_pdf_loaded', state.lang_code).format(path=path), False
 
 
 def _cmd_csv(state, args, _root):
@@ -215,14 +218,14 @@ def _cmd_csv(state, args, _root):
     try:
         ranges = fba_engine.parse_ranges_from_csv(path)
         state.ranges = ranges
-        lines = [lang.get('cli_csv_loaded', 'zh').format(path=path)]
-        lines.append(lang.get('cli_ranges_parsed', 'zh').format(count=len(ranges)))
+        lines = [lang.get('cli_csv_loaded', state.lang_code).format(path=path)]
+        lines.append(lang.get('cli_ranges_parsed', state.lang_code).format(count=len(ranges)))
         for r in ranges:
             lines.append(f"  [{r['start']}-{r['end']}] {r.get('title', '')}")
         return '\n'.join(lines), False
     except Exception as e:
         state.ranges = []
-        return f"{lang.get('cli_csv_loaded', 'zh').format(path=path)}\nWarning: Could not parse ranges - {e}", True
+        return f"{lang.get('cli_csv_loaded', state.lang_code).format(path=path)}\nWarning: Could not parse ranges - {e}", True
 
 
 def _cmd_range(state, args, _root):
@@ -238,7 +241,7 @@ def _cmd_range(state, args, _root):
         state.ranges.append({"title": title, "start": s, "end": e})
         state.ranges.sort(key=lambda x: x['start'])
         state.reset_job()
-        return lang.get('cli_range_added', 'zh').format(s=s, e=e, title=title, total=len(state.ranges)), False
+        return lang.get('cli_range_added', state.lang_code).format(s=s, e=e, title=title, total=len(state.ranges)), False
 
     elif sub == 'remove':
         if len(args) < 2:
@@ -251,16 +254,16 @@ def _cmd_range(state, args, _root):
             return f"Index out of range (1-{len(state.ranges)})", True
         removed = state.ranges.pop(idx)
         state.reset_job()
-        return lang.get('cli_range_removed', 'zh').format(start=removed['start'], end=removed['end'], title=removed['title']), False
+        return lang.get('cli_range_removed', state.lang_code).format(start=removed['start'], end=removed['end'], title=removed['title']), False
 
     elif sub == 'clear':
         state.ranges = []
         state.reset_job()
-        return lang.get('cli_ranges_cleared', 'zh'), False
+        return lang.get('cli_ranges_cleared', state.lang_code), False
 
     elif sub == 'list':
         if not state.ranges:
-            return lang.get('cli_no_ranges', 'zh'), False
+            return lang.get('cli_no_ranges', state.lang_code), False
         lines = [f"Ranges ({len(state.ranges)}):"]
         for i, r in enumerate(state.ranges):
             lines.append(f"  {i+1}. [{r['start']}-{r['end']}] {r.get('title', '')}")
@@ -272,12 +275,12 @@ def _cmd_range(state, args, _root):
 
 def _cmd_process(state, args, _root):
     if state.region == 'us':
-        return lang.get('cli_use_us_process', 'zh'), True
+        return lang.get('cli_use_us_process', state.lang_code), True
 
     if not state.pdf_path:
-        return lang.get('cli_no_pdf', 'zh'), True
+        return lang.get('cli_no_pdf', state.lang_code), True
     if not state.ranges:
-        return lang.get('cli_no_ranges_proc', 'zh'), True
+        return lang.get('cli_no_ranges_proc', state.lang_code), True
 
     output_dir = os.path.join(state.temp_dir, 'output')
     os.makedirs(output_dir, exist_ok=True)
@@ -290,7 +293,7 @@ def _cmd_process(state, args, _root):
             manual_ranges=state.ranges
         )
         state.job_result = result
-        lines = [lang.get('cli_processing_done', 'zh').format(count=len(result['files']))]
+        lines = [lang.get('cli_processing_done', state.lang_code).format(count=len(result['files']))]
         for i, fname in enumerate(result['files']):
             r = result['ranges'][i] if i < len(result['ranges']) else {}
             lines.append(f"  {fname}  [{r.get('start', '?')}-{r.get('end', '?')}] {r.get('title', '')}")
@@ -345,9 +348,9 @@ def _cmd_us_margin(state, args, _root):
 
 def _cmd_us_process(state, args, _root):
     if state.region != 'us':
-        return lang.get('cli_switch_us', 'zh'), True
+        return lang.get('cli_switch_us', state.lang_code), True
     if not state.pdf_path:
-        return lang.get('cli_no_pdf', 'zh'), True
+        return lang.get('cli_no_pdf', state.lang_code), True
 
     output_dir = os.path.join(state.temp_dir, 'output')
     os.makedirs(output_dir, exist_ok=True)
@@ -362,7 +365,7 @@ def _cmd_us_process(state, args, _root):
             margin_l=ml, margin_t=mt, margin_r=mr, margin_b=mb
         )
         state.job_result = result
-        lines = [lang.get('cli_us_done', 'zh').format(count=len(result['files']))]
+        lines = [lang.get('cli_us_done', state.lang_code).format(count=len(result['files']))]
         for i, fname in enumerate(result['files']):
             sku = result['skus'][i] if i < len(result.get('skus', [])) else '?'
             lines.append(f"  {fname}  (SKU: {sku})")
@@ -392,7 +395,7 @@ def _cmd_status(state, args, _root):
 
 def _cmd_download(state, args, _root):
     if not state.job_result:
-        return lang.get('cli_no_results', 'zh'), True
+        return lang.get('cli_no_results', state.lang_code), True
     if not args:
         files = state.job_result.get('files', [])
         if not files:
@@ -413,12 +416,12 @@ def _cmd_download(state, args, _root):
     os.makedirs(downloads_dir, exist_ok=True)
     dest = os.path.join(downloads_dir, fname)
     shutil.copy2(fpath, dest)
-    return lang.get('cli_file_ready', 'zh').format(session_id=state.session_id, fname=fname), False
+    return lang.get('cli_file_ready', state.lang_code).format(session_id=state.session_id, fname=fname), False
 
 
 def _cmd_download_all(state, args, _root):
     if not state.job_result:
-        return lang.get('cli_no_results', 'zh'), True
+        return lang.get('cli_no_results', state.lang_code), True
     downloads_dir = os.path.join(state.temp_dir, 'downloads')
     os.makedirs(downloads_dir, exist_ok=True)
     zip_name = f"FBA_Labels_{state.session_id}.zip"
@@ -429,12 +432,12 @@ def _cmd_download_all(state, args, _root):
             fpath = os.path.join(output_dir, fname)
             if os.path.exists(fpath):
                 zf.write(fpath, fname)
-    return lang.get('cli_zip_ready', 'zh').format(session_id=state.session_id, zip_name=zip_name), False
+    return lang.get('cli_zip_ready', state.lang_code).format(session_id=state.session_id, zip_name=zip_name), False
 
 
 def _cmd_history(state, args, _root):
     if not state.history:
-        return lang.get('cli_no_history', 'zh'), False
+        return lang.get('cli_no_history', state.lang_code), False
     lines = ["Command history:"]
     for i, h in enumerate(state.history[-20:]):
         lines.append(f"  {i+1}. {h}")

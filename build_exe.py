@@ -1,5 +1,5 @@
 """
-FBA Label Splitter V2.5 — EXE 打包脚本
+FBA Label Splitter V2.6 Redesigned 1 — EXE 打包脚本
 运行: python build_exe.py
 输出: dist/FBA Label Splitter/FBA Label Splitter.exe
 """

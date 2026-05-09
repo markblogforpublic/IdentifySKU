@@ -8,30 +8,30 @@ LANG = {
     # ═══════════════════════════════════════════════════
     #  Common / General
     # ═══════════════════════════════════════════════════
-    "app_title":       {"zh": "FBA Label Splitter", "en": "FBA Label Splitter"},
-    "app_subtitle":    {"zh": "Amazon FBA 标签智能拆分工具", "en": "Amazon FBA Label Intelligent Splitter"},
-    "app_version":     {"zh": "V2.5", "en": "V2.5"},
-    "save":            {"zh": "保存", "en": "Save"},
-    "cancel":          {"zh": "取消", "en": "Cancel"},
-    "close":           {"zh": "关闭", "en": "Close"},
-    "confirm":         {"zh": "确认", "en": "Confirm"},
-    "delete":          {"zh": "删除", "en": "Delete"},
-    "edit":            {"zh": "编辑", "en": "Edit"},
-    "add":             {"zh": "添加", "en": "Add"},
-    "download":        {"zh": "下载", "en": "Download"},
-    "loading":         {"zh": "加载中...", "en": "Loading..."},
-    "error":           {"zh": "错误", "en": "Error"},
-    "success":         {"zh": "成功", "en": "Success"},
-    "unknown":         {"zh": "未知", "en": "Unknown"},
-    "none":            {"zh": "无", "en": "None"},
-    "guest":           {"zh": "访客", "en": "Guest"},
-    "logout":          {"zh": "退出", "en": "Logout"},
-    "login":           {"zh": "登 录", "en": "Login"},
-    "username":        {"zh": "用户名", "en": "Username"},
-    "password":        {"zh": "密码", "en": "Password"},
-    "remember_me":     {"zh": "记住登录状态（30 天）", "en": "Remember me (30 days)"},
-    "no_permission":   {"zh": "无权限", "en": "No permission"},
-    "restart_hint":    {"zh": "已保存（需重启服务生效）", "en": "Saved (restart server to apply)"},
+    "app_title":       {"zh": "FBA Label Splitter", "en": "FBA Label Splitter", "ja": "FBA Label Splitter"},
+    "app_subtitle":    {"zh": "Amazon FBA 标签智能拆分工具", "en": "Amazon FBA Label Intelligent Splitter", "ja": "Amazon FBA ラベル分割ツール"},
+    "app_version":     {"zh": "V2.6 Redesigned 1", "en": "V2.6 Redesigned 1", "ja": "V2.6 Redesigned 1"},
+    "save":            {"zh": "保存", "en": "Save", "ja": "保存"},
+    "cancel":          {"zh": "取消", "en": "Cancel", "ja": "キャンセル"},
+    "close":           {"zh": "关闭", "en": "Close", "ja": "閉じる"},
+    "confirm":         {"zh": "确认", "en": "Confirm", "ja": "確認"},
+    "delete":          {"zh": "删除", "en": "Delete", "ja": "削除"},
+    "edit":            {"zh": "编辑", "en": "Edit", "ja": "編集"},
+    "add":             {"zh": "添加", "en": "Add", "ja": "追加"},
+    "download":        {"zh": "下载", "en": "Download", "ja": "ダウンロード"},
+    "loading":         {"zh": "加载中...", "en": "Loading...", "ja": "読み込み中..."},
+    "error":           {"zh": "错误", "en": "Error", "ja": "エラー"},
+    "success":         {"zh": "成功", "en": "Success", "ja": "成功"},
+    "unknown":         {"zh": "未知", "en": "Unknown", "ja": "不明"},
+    "none":            {"zh": "无", "en": "None", "ja": "なし"},
+    "guest":           {"zh": "访客", "en": "Guest", "ja": "ゲスト"},
+    "logout":          {"zh": "退出", "en": "Logout", "ja": "ログアウト"},
+    "login":           {"zh": "登 录", "en": "Login", "ja": "ログイン"},
+    "username":        {"zh": "用户名", "en": "Username", "ja": "ユーザー名"},
+    "password":        {"zh": "密码", "en": "Password", "ja": "パスワード"},
+    "remember_me":     {"zh": "记住登录状态（30 天）", "en": "Remember me (30 days)", "ja": "ログイン状態を保存（30日間）"},
+    "no_permission":   {"zh": "无权限", "en": "No permission", "ja": "権限がありません"},
+    "restart_hint":    {"zh": "已保存（需重启服务生效）", "en": "Saved (restart server to apply)", "ja": "保存しました（再起動で反映）"},
 
     # ═══════════════════════════════════════════════════
     #  Launcher
@@ -46,12 +46,12 @@ LANG = {
     "launcher_first_run_btn":       {"zh": "设置密码并进入", "en": "Set Password & Enter"},
     "launcher_first_run_short":     {"zh": "密码长度至少 4 位", "en": "Password must be at least 4 characters"},
     "launcher_first_run_mismatch":  {"zh": "两次输入的密码不一致", "en": "Passwords do not match"},
-    "launcher_status_off":          {"zh": "未启动", "en": "Stopped"},
-    "launcher_status_on":           {"zh": "服务运行中", "en": "Server Running"},
-    "launcher_btn_start":           {"zh": "🚀  启动服务", "en": "🚀  Start Server"},
-    "launcher_btn_stop":            {"zh": "⏹  停止服务", "en": "⏹  Stop Server"},
-    "launcher_btn_open":            {"zh": "🌐  打开网页", "en": "🌐  Open Browser"},
-    "launcher_btn_settings":        {"zh": "⚙  高级设置", "en": "⚙  Advanced Settings"},
+    "launcher_status_off":          {"zh": "未启动", "en": "Stopped", "ja": "停止中"},
+    "launcher_status_on":           {"zh": "服务运行中", "en": "Server Running", "ja": "サーバー稼働中"},
+    "launcher_btn_start":           {"zh": "启动服务", "en": "Start Server", "ja": "サーバー起動"},
+    "launcher_btn_stop":            {"zh": "停止服务", "en": "Stop Server", "ja": "サーバー停止"},
+    "launcher_btn_open":            {"zh": "打开网页", "en": "Open Browser", "ja": "ブラウザを開く"},
+    "launcher_btn_settings":        {"zh": "高级设置", "en": "Advanced Settings", "ja": "詳細設定"},
     "launcher_hint":                {"zh": "💡 如需部署至服务器或限制他人操作，请打开高级设置",
                                      "en": "💡 To deploy on a server or restrict access, open Advanced Settings"},
     "launcher_info_anonymous":      {"zh": "本机访问 · 匿名", "en": "Local · Anonymous"},
@@ -117,59 +117,60 @@ LANG = {
     # ═══════════════════════════════════════════════════
     #  Web UI — Navigation
     # ═══════════════════════════════════════════════════
-    "nav_uk":         {"zh": "英国版", "en": "UK"},
-    "nav_au":         {"zh": "澳洲版", "en": "AU"},
-    "nav_us":         {"zh": "美国版", "en": "US"},
-    "nav_about":      {"zh": "关于", "en": "About"},
-    "nav_region_badge":{"zh": "当前区域", "en": "Region"},
+    "nav_uk":         {"zh": "英国版", "en": "UK", "ja": "イギリス"},
+    "nav_au":         {"zh": "澳洲版", "en": "AU", "ja": "オーストラリア"},
+    "nav_us":         {"zh": "美国版", "en": "US", "ja": "アメリカ"},
+    "nav_about":      {"zh": "设置与关于", "en": "Settings & About", "ja": "設定と情報"},
+    "nav_region_badge":{"zh": "当前区域", "en": "Region", "ja": "地域"},
 
     # ═══════════════════════════════════════════════════
     #  Web UI — UK/AU Tab
     # ═══════════════════════════════════════════════════
-    "uk_step1_title":    {"zh": "上传 FBA 标签源文件", "en": "Upload FBA Label PDF"},
-    "uk_step1_required": {"zh": "* 必选", "en": "* Required"},
-    "uk_step1_hint":     {"zh": "点击选择 或拖拽 PDF 到此处", "en": "Click or drag PDF here"},
-    "uk_step2_title":    {"zh": "上传装箱单（CSV / Excel，可选）", "en": "Upload Packing List (CSV / Excel, optional)"},
-    "uk_step2_hint":     {"zh": "点击选择 或拖拽 CSV / Excel 到此处", "en": "Click or drag CSV / Excel here"},
-    "uk_step2_auto":     {"zh": "上传后自动填充下方区间表格", "en": "Ranges will be auto-populated after upload"},
-    "uk_step3_title":    {"zh": "标签区间配置", "en": "Label Range Configuration"},
-    "uk_step3_add":      {"zh": "添加区间", "en": "Add Range"},
+    "uk_step1_title":    {"zh": "上传 FBA 标签源文件", "en": "Upload FBA Label PDF", "ja": "FBAラベルPDFをアップロード"},
+    "uk_step1_required": {"zh": "* 必选", "en": "* Required", "ja": "* 必須"},
+    "uk_step1_hint":     {"zh": "点击选择 或拖拽 PDF 到此处", "en": "Click or drag PDF here", "ja": "クリックまたはPDFをドラッグ"},
+    "uk_step2_title":    {"zh": "上传装箱单（CSV / Excel，可选）", "en": "Upload Packing List (CSV / Excel, optional)", "ja": "パッキングリストをアップロード（CSV/Excel、任意）"},
+    "uk_step2_hint":     {"zh": "点击选择 或拖拽 CSV / Excel 到此处", "en": "Click or drag CSV / Excel here", "ja": "クリックまたはCSV/Excelをドラッグ"},
+    "uk_step2_auto":     {"zh": "上传后自动填充下方区间表格", "en": "Ranges will be auto-populated after upload", "ja": "アップロード後、範囲テーブルが自動入力されます"},
+    "uk_step3_title":    {"zh": "标签区间配置", "en": "Label Range Configuration", "ja": "ラベル範囲設定"},
+    "uk_step3_add":      {"zh": "添加区间", "en": "Add Range", "ja": "範囲を追加"},
     "uk_step3_hint":     {"zh": "上传 CSV 自动填充，或手动添加。必须至少配置一个区间才能处理。",
-                           "en": "Auto-filled from CSV, or add manually. At least one range required."},
-    "uk_step3_empty":    {"zh": "暂无区间 — 上传 CSV 或点击「添加区间」", "en": "No ranges — upload CSV or click Add Range"},
-    "uk_step3_count":    {"zh": " 个", "en": ""},
-    "uk_step3_col_title": {"zh": "标题", "en": "Title"},
-    "uk_step3_col_start": {"zh": "起始", "en": "Start"},
-    "uk_step3_col_end":   {"zh": "结束", "en": "End"},
-    "uk_step4_title":    {"zh": "开始处理", "en": "Process"},
-    "uk_step4_btn":      {"zh": "开始拆分", "en": "Start Splitting"},
-    "uk_step4_hint":     {"zh": "请先选择 PDF 并配置至少一个区间", "en": "Please select a PDF and configure at least one range"},
-    "uk_progress_scan":  {"zh": "扫描标签...", "en": "Scanning labels..."},
-    "uk_progress_split": {"zh": "切分导出...", "en": "Splitting & exporting..."},
-    "uk_result_title":   {"zh": "生成结果", "en": "Results"},
-    "uk_result_dl_all":  {"zh": "打包下载全部", "en": "Download All as ZIP"},
-    "uk_placeholder":    {"zh": "SKU名称", "en": "SKU Name"},
+                           "en": "Auto-filled from CSV, or add manually. At least one range required.",
+                           "ja": "CSVから自動入力、または手動で追加。最低1つの範囲が必要です。"},
+    "uk_step3_empty":    {"zh": "暂无区间 — 上传 CSV 或点击「添加区间」", "en": "No ranges — upload CSV or click Add Range", "ja": "範囲がありません — CSVをアップロードするか「範囲を追加」をクリック"},
+    "uk_step3_count":    {"zh": " 个", "en": "", "ja": " 個"},
+    "uk_step3_col_title": {"zh": "标题", "en": "Title", "ja": "タイトル"},
+    "uk_step3_col_start": {"zh": "起始", "en": "Start", "ja": "開始"},
+    "uk_step3_col_end":   {"zh": "结束", "en": "End", "ja": "終了"},
+    "uk_step4_title":    {"zh": "开始处理", "en": "Process", "ja": "処理開始"},
+    "uk_step4_btn":      {"zh": "开始拆分", "en": "Start Splitting", "ja": "分割開始"},
+    "uk_step4_hint":     {"zh": "请先选择 PDF 并配置至少一个区间", "en": "Please select a PDF and configure at least one range", "ja": "PDFを選択し、少なくとも1つの範囲を設定してください"},
+    "uk_progress_scan":  {"zh": "扫描标签...", "en": "Scanning labels...", "ja": "ラベルをスキャン中..."},
+    "uk_progress_split": {"zh": "切分导出...", "en": "Splitting & exporting...", "ja": "分割・エクスポート中..."},
+    "uk_result_title":   {"zh": "生成结果", "en": "Results", "ja": "結果"},
+    "uk_result_dl_all":  {"zh": "打包下载全部", "en": "Download All as ZIP", "ja": "すべてZIPでダウンロード"},
+    "uk_placeholder":    {"zh": "SKU名称", "en": "SKU Name", "ja": "SKU名"},
 
     # ═══════════════════════════════════════════════════
     #  Web UI — US Tab
     # ═══════════════════════════════════════════════════
-    "us_step1_title":    {"zh": "上传 SKU 标签 PDF", "en": "Upload SKU Label PDF"},
-    "us_step1_hint":     {"zh": "支持含 \"Single SKU\" 标记的标签 PDF", "en": "Supports PDFs with \"Single SKU\" markers"},
-    "us_step2_title":    {"zh": "网格布局设置", "en": "Grid Layout Settings"},
-    "us_step2_rows":     {"zh": "行数", "en": "Rows"},
-    "us_step2_cols":     {"zh": "列数", "en": "Columns"},
-    "us_step2_adv":      {"zh": "高级边距设置", "en": "Advanced Margin Settings"},
-    "us_step2_hide_adv": {"zh": "隐藏边距设置", "en": "Hide Margin Settings"},
-    "us_step2_ml":       {"zh": "左边距", "en": "Left Margin"},
-    "us_step2_mt":       {"zh": "上边距", "en": "Top Margin"},
-    "us_step2_mr":       {"zh": "右边距", "en": "Right Margin"},
-    "us_step2_mb":       {"zh": "下边距", "en": "Bottom Margin"},
-    "us_step3_title":    {"zh": "开始处理", "en": "Process"},
-    "us_step3_btn":      {"zh": "开始转换", "en": "Start Conversion"},
-    "us_step3_hint":     {"zh": "请先选择 PDF 文件", "en": "Please select a PDF file first"},
-    "us_progress_scan":  {"zh": "扫描标签...", "en": "Scanning labels..."},
-    "us_progress_export": {"zh": "导出SKU...", "en": "Exporting SKUs..."},
-    "us_result_title":   {"zh": "导出结果", "en": "Export Results"},
+    "us_step1_title":    {"zh": "上传 SKU 标签 PDF", "en": "Upload SKU Label PDF", "ja": "SKUラベルPDFをアップロード"},
+    "us_step1_hint":     {"zh": "支持含 \"Single SKU\" 标记的标签 PDF", "en": "Supports PDFs with \"Single SKU\" markers", "ja": "\"Single SKU\" マーカー付きのPDFに対応"},
+    "us_step2_title":    {"zh": "网格布局设置", "en": "Grid Layout Settings", "ja": "グリッドレイアウト設定"},
+    "us_step2_rows":     {"zh": "行数", "en": "Rows", "ja": "行"},
+    "us_step2_cols":     {"zh": "列数", "en": "Columns", "ja": "列"},
+    "us_step2_adv":      {"zh": "高级边距设置", "en": "Advanced Margin Settings", "ja": "詳細マージン設定"},
+    "us_step2_hide_adv": {"zh": "隐藏边距设置", "en": "Hide Margin Settings", "ja": "マージン設定を隠す"},
+    "us_step2_ml":       {"zh": "左边距", "en": "Left Margin", "ja": "左マージン"},
+    "us_step2_mt":       {"zh": "上边距", "en": "Top Margin", "ja": "上マージン"},
+    "us_step2_mr":       {"zh": "右边距", "en": "Right Margin", "ja": "右マージン"},
+    "us_step2_mb":       {"zh": "下边距", "en": "Bottom Margin", "ja": "下マージン"},
+    "us_step3_title":    {"zh": "开始处理", "en": "Process", "ja": "処理開始"},
+    "us_step3_btn":      {"zh": "开始转换", "en": "Start Conversion", "ja": "変換開始"},
+    "us_step3_hint":     {"zh": "请先选择 PDF 文件", "en": "Please select a PDF file first", "ja": "PDFファイルを選択してください"},
+    "us_progress_scan":  {"zh": "扫描标签...", "en": "Scanning labels...", "ja": "ラベルをスキャン中..."},
+    "us_progress_export": {"zh": "导出SKU...", "en": "Exporting SKUs...", "ja": "SKUをエクスポート中..."},
+    "us_result_title":   {"zh": "导出结果", "en": "Export Results", "ja": "エクスポート結果"},
 
     # ═══════════════════════════════════════════════════
     #  Web UI — AU Tab (placeholder)
@@ -182,10 +183,10 @@ LANG = {
     # ═══════════════════════════════════════════════════
     #  Web UI — About Tab
     # ═══════════════════════════════════════════════════
-    "about_log":       {"zh": "日志", "en": "Logs"},
-    "about_theme":     {"zh": "主题", "en": "Theme"},
-    "about_user":      {"zh": "个人信息", "en": "User Info"},
-    "about_dev":       {"zh": "开发者", "en": "Developer"},
+    "about_log":       {"zh": "日志", "en": "Logs", "ja": "ログ"},
+    "about_theme":     {"zh": "主题", "en": "Theme", "ja": "テーマ"},
+    "about_user":      {"zh": "个人信息", "en": "User Info", "ja": "ユーザー情報"},
+    "about_dev":       {"zh": "开发者", "en": "Developer", "ja": "開発者"},
     "about_log_title": {"zh": "处理日志", "en": "Processing Logs"},
     "about_log_desc":  {"zh": "每次上传和处理的记录", "en": "Record of each upload and processing task"},
     "about_log_empty": {"zh": "暂无日志记录", "en": "No log records"},
@@ -213,6 +214,31 @@ LANG = {
                           "en": "Built by markblogforpublic.github.io & Claude"},
 
     # ═══════════════════════════════════════════════════
+    #  Changelog
+    # ═══════════════════════════════════════════════════
+    "about_changelog":  {"zh": "更新日志", "en": "Changelog"},
+    "about_changelog_title": {"zh": "V2.6 更新内容", "en": "V2.6 What's New"},
+    "cl_v25_title": {"zh": "V2.5 首个版本", "en": "V2.5 First Release"},
+    "cl_v25_1": {"zh": "UK/AU 模式: 按 FBA 标签编号区间拆分 PDF", "en": "UK/AU mode: Split PDF by FBA label number ranges"},
+    "cl_v25_2": {"zh": "US 模式: 按 Single SKU 文本标记拆分 PDF", "en": "US mode: Split PDF by Single SKU text markers"},
+    "cl_v25_3": {"zh": "Web 图形界面: 拖拽上传、进度条、一键下载 ZIP", "en": "Web GUI: Drag-and-drop upload, progress bar, one-click ZIP download"},
+    "cl_v25_4": {"zh": "CLI 命令行模式: 17 条英文命令，支持历史记录", "en": "CLI mode: 17 English commands with history support"},
+    "cl_v25_5": {"zh": "桌面启动器: 一键启动/停止，高级设置面板", "en": "Desktop launcher: One-click start/stop, advanced settings"},
+    "cl_v25_6": {"zh": "中英文双语界面，4 套主题", "en": "Bilingual UI (Chinese/English), 4 themes"},
+    "cl_v25_7": {"zh": "用户登录验证与权限管理", "en": "User authentication with role-based permissions"},
+    "cl_v26_1": {"zh": "修复: UK/AU 标签扫描改用文本块中心坐标分配象限，消除边界重叠导致的标签重复/遗漏", "en": "Fix: UK/AU label scan uses text block center to assign quadrants, eliminating duplicate/missed labels"},
+    "cl_v26_2": {"zh": "增强: 导出验证新增越界标签检测，自动检查输出文件中的标签是否在对应区间内", "en": "Enhance: Export verification now detects out-of-range labels automatically"},
+    "cl_v26_3": {"zh": "优化: 后台日志记录更清晰，带时间戳方便排查问题", "en": "Optimize: Cleaner server logs with timestamps for easier debugging"},
+    "cl_v26_4": {"zh": "安全: 账户密码加密强度提升，登录更安全", "en": "Security: Stronger password encryption for safer login"},
+    "cl_v26_5": {"zh": "优化: 操作响应速度优化，多人使用时更稳定", "en": "Optimize: Faster responses and better stability under heavy use"},
+    "cl_v26_6": {"zh": "优化: 命令行模式跟随界面语言，不再只显示中文", "en": "Optimize: CLI mode now uses the same language as the web UI"},
+    "cl_v26_7": {"zh": "优化: 清理冗余代码和未使用的引用，运行更轻量", "en": "Optimize: Cleaned up redundant code for a lighter footprint"},
+    "cl_v26_8": {"zh": "优化: 服务端无图形界面时也能正常启动", "en": "Optimize: Server can now start without a graphical display"},
+    "cl_v26_9": {"zh": "界面: 侧边栏导航布局，导航移至左侧，可折叠隐藏", "en": "UI: Sidebar navigation layout, collapsible sidebar"},
+    "cl_v26_10": {"zh": "界面: 引入 Inter 字体，卡片、按钮圆角增大，边距优化", "en": "UI: Inter font, larger rounded corners, improved spacing"},
+    "cl_v26_11": {"zh": "界面: 各类标题字号增大，整体更清晰", "en": "UI: Larger headings for better readability"},
+
+    # ═══════════════════════════════════════════════════
     #  Web UI — Login
     # ═══════════════════════════════════════════════════
     "login_title":  {"zh": "FBA Label Splitter", "en": "FBA Label Splitter"},
@@ -230,7 +256,7 @@ LANG = {
     # ═══════════════════════════════════════════════════
     "cli_terminal_title":   {"zh": "CLI Terminal", "en": "CLI Terminal"},
     "cli_return_gui":       {"zh": "返回图形界面", "en": "Return to GUI"},
-    "cli_welcome_line1":    {"zh": "║   FBA Label Splitter CLI v2.5          ║", "en": "║   FBA Label Splitter CLI v2.5          ║"},
+    "cli_welcome_line1":    {"zh": "║   FBA Label Splitter CLI v2.6          ║", "en": "║   FBA Label Splitter CLI v2.6          ║"},
     "cli_welcome_line2":    {"zh": "输入 'help' 查看所有可用命令。", "en": "Type 'help' for available commands."},
     "cli_welcome_line3":    {"zh": "按 ↑↓ 键浏览命令历史。", "en": "Press ↑↓ for command history."},
     "cli_input_placeholder":{"zh": "输入命令，例如: help  /  region uk  /  pdf C:\\labels.pdf ...",
@@ -307,26 +333,18 @@ LANG = {
 # ═══════════════════════════════════════════════════
 
 def get(key, lang='zh'):
-    """Get a single translated string."""
+    """Get a single translated string. Fallback: requested → en → zh → key."""
     entry = LANG.get(key, {})
-    return entry.get(lang, entry.get('zh', key))
+    if lang in entry:
+        return entry[lang]
+    if 'en' in entry:
+        return entry['en']
+    return entry.get('zh', key)
 
 
 def get_all(lang='zh'):
-    """Return all strings as a flat dict for the given language (for JS consumption)."""
-    return {k: v.get(lang, v.get('zh', k)) for k, v in LANG.items()}
+    """Return all strings as a flat dict for the given language (for JS consumption).
+    Fallback: requested → en → zh → key."""
+    return {k: v.get(lang, v.get('en', v.get('zh', k))) for k, v in LANG.items()}
 
 
-def detect_lang(request):
-    """Detect preferred language from request. Returns 'zh' or 'en'."""
-    # Check query param first
-    qp = request.args.get('lang', '').lower()
-    if qp in ('en', 'zh'):
-        return qp
-    # Check Accept-Language header
-    al = request.headers.get('Accept-Language', '')
-    if 'zh' in al.lower():
-        return 'zh'
-    if 'en' in al.lower():
-        return 'en'
-    return 'zh'  # default

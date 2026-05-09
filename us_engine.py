@@ -7,7 +7,21 @@ Built on PyMuPDF (fitz), consistent with other modules in the project.
 import fitz  # pymupdf
 import re
 import os
+import logging
 from collections import defaultdict
+
+logger = logging.getLogger(__name__)
+
+
+def _validate_margins(ml, mt, mr, mb, pw, ph):
+    """Validate margin values against page dimensions. Raises ValueError."""
+    for name, val in [("left", ml), ("top", mt), ("right", mr), ("bottom", mb)]:
+        if val < 0:
+            raise ValueError(f"Margin '{name}' cannot be negative (got {val})")
+    if ml + mr >= pw:
+        raise ValueError(f"Horizontal margins ({ml + mr}) exceed page width ({pw})")
+    if mt + mb >= ph:
+        raise ValueError(f"Vertical margins ({mt + mb}) exceed page height ({ph})")
 
 
 def process_sku_pdf(input_pdf, output_dir, rows=3, cols=2,
@@ -32,10 +46,16 @@ def process_sku_pdf(input_pdf, output_dir, rows=3, cols=2,
     def emit(stage, cur, total, msg):
         if on_progress:
             on_progress(stage, cur, total, msg)
-        print(msg)
+        logger.debug(msg)
 
     src_doc = fitz.open(input_pdf)
     total_pages = len(src_doc)
+
+    # Validate margins against first page dimensions
+    first_page = src_doc[0]
+    _validate_margins(margin_l, margin_t, margin_r, margin_b,
+                      first_page.rect.width, first_page.rect.height)
+
     emit("scan", 0, total_pages, f"US mode: scanning {total_pages} pages...")
 
     for page_idx in range(total_pages):

@@ -1,8 +1,12 @@
 """
-FBA Label Splitter V2.5 — Web Backend
+FBA Label Splitter V2.6 Redesigned 1 — Web Backend
 Start: python app.py  /  python start.py
 """
 import os, sys, json, shutil, uuid, threading, zipfile, io, csv
+import logging
+from collections import deque
+
+logger = logging.getLogger(__name__)
 
 # Determine base directory (compatible with EXE packaging)
 if getattr(sys, 'frozen', False):
@@ -52,6 +56,31 @@ def cleanup_old_jobs():
         jobs.pop(jid, None)
 
 
+def _create_job(temp_dir, pdf_file, pdf_filename=None):
+    """Set up job directory, save PDF, init jobs dict. Returns (job_id, job_dir, output_dir, pdf_path)."""
+    job_id = str(uuid.uuid4())[:8]
+    job_dir = os.path.join(temp_dir, job_id)
+    os.makedirs(job_dir, exist_ok=True)
+    pdf_path = os.path.join(job_dir, pdf_filename or pdf_file.filename)
+    pdf_file.save(pdf_path)
+    output_dir = os.path.join(job_dir, 'output')
+    os.makedirs(output_dir, exist_ok=True)
+    jobs[job_id] = {
+        "created": datetime.now(),
+        "status": "processing",
+        "progress": {"stage": "scan", "current": 0, "total": 0, "message": "准备中..."},
+        "result": None, "error": None
+    }
+    return job_id, job_dir, output_dir, pdf_path
+
+
+def _make_on_progress(job_id):
+    """Return an on_progress callback that updates jobs[job_id]['progress']."""
+    def on_progress(stage, current, total, message):
+        jobs[job_id]["progress"] = {"stage": stage, "current": current, "total": total, "message": message}
+    return on_progress
+
+
 def xlsx_to_csv(xlsx_path):
     """Convert the first worksheet of XLSX/XLS to CSV, return the CSV file path."""
     import openpyxl
@@ -93,15 +122,17 @@ def _validate_username(username):
 # Simple rate limiting
 _rate_limits = {}
 def _check_rate_limit(key, max_req=30, window_sec=60):
-    """Sliding window rate limiter. Returns True to allow."""
+    """Sliding window rate limiter using deque. Returns True to allow."""
     now = datetime.now()
     if key not in _rate_limits:
-        _rate_limits[key] = []
+        _rate_limits[key] = deque()
     window = now - timedelta(seconds=window_sec)
-    _rate_limits[key] = [t for t in _rate_limits[key] if t > window]
-    if len(_rate_limits[key]) >= max_req:
+    q = _rate_limits[key]
+    while q and q[0] < window:
+        q.popleft()
+    if len(q) >= max_req:
         return False
-    _rate_limits[key].append(now)
+    q.append(now)
     return True
 
 
@@ -116,10 +147,10 @@ def add_security_headers(response):
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; "
-        "style-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "img-src 'self' data:; "
         "connect-src 'self' https://api.ipify.org; "
-        "font-src 'self'; "
+        "font-src 'self' https://fonts.gstatic.com; "
         "frame-ancestors 'none'; "
         "base-uri 'self'; "
         "form-action 'self'"
@@ -151,8 +182,8 @@ def get_current_permissions():
 @app.before_request
 def detect_language():
     g.lang = request.args.get('lang', '')
-    if g.lang not in ('zh', 'en'):
-        g.lang = request.accept_languages.best_match(['zh', 'en']) or 'zh'
+    if g.lang not in ('zh', 'en', 'ja'):
+        g.lang = request.accept_languages.best_match(['zh', 'en', 'ja']) or 'zh'
 
 
 @app.route('/api/login', methods=['POST'])
@@ -209,11 +240,13 @@ def index():
     lang_code = g.lang
     lang_strings_zh = lang.get_all('zh')
     lang_strings_en = lang.get_all('en')
+    lang_strings_ja = lang.get_all('ja')
     return render_template('index.html',
         login_required=app.config['LOGIN_REQUIRED'],
         cli_mode=app.config['CLI_MODE'],
         lang_strings_zh=lang_strings_zh,
         lang_strings_en=lang_strings_en,
+        lang_strings_ja=lang_strings_ja,
         lang=lang_code)
 
 
@@ -245,11 +278,7 @@ def api_process():
     if not manual_ranges and (not csv_file or not csv_file.filename):
         return jsonify({"error": lang.get('api_no_ranges', lang_code), "code": "NO_RANGES"}), 400
 
-    job_id = str(uuid.uuid4())[:8]
-    job_dir = os.path.join(TEMP_DIR, job_id)
-    os.makedirs(job_dir, exist_ok=True)
-    pdf_path = os.path.join(job_dir, pdf_file.filename)
-    pdf_file.save(pdf_path)
+    job_id, job_dir, output_dir, pdf_path = _create_job(TEMP_DIR, pdf_file)
     csv_path = None
     if csv_file and csv_file.filename:
         csv_path = os.path.join(job_dir, csv_file.filename)
@@ -258,21 +287,13 @@ def api_process():
         ext = os.path.splitext(csv_file.filename)[1].lower()
         if ext in ('.xlsx', '.xls'):
             try:
-                converted = xlsx_to_csv(csv_path)
-                csv_path = converted
+                csv_path = xlsx_to_csv(csv_path)
             except Exception as e:
                 jobs[job_id]["status"] = "error"
                 jobs[job_id]["error"] = f"{lang.get('api_xlsx_failed', lang_code)}：{e}"
                 return jsonify({"error": f"{lang.get('api_xlsx_failed', lang_code)}：{e}"}), 400
-    output_dir = os.path.join(job_dir, 'output')
-    os.makedirs(output_dir, exist_ok=True)
 
-    jobs[job_id] = {"created": datetime.now(), "status": "processing",
-        "progress": {"stage": "scan", "current": 0, "total": 0, "message": "准备中..."},
-        "result": None, "error": None}
-
-    def on_progress(stage, current, total, message):
-        jobs[job_id]["progress"] = {"stage": stage, "current": current, "total": total, "message": message}
+    on_progress = _make_on_progress(job_id)
 
     def run_processing():
         try:
@@ -371,21 +392,13 @@ def api_us_process():
     rows, cols = int(request.form.get('rows', 3)), int(request.form.get('cols', 2))
     ml, mt = float(request.form.get('ml', 0)), float(request.form.get('mt', 40))
     mr, mb = float(request.form.get('mr', 0)), float(request.form.get('mb', 40))
+    if ml < 0 or mt < 0 or mr < 0 or mb < 0:
+        return jsonify({"error": "Margins cannot be negative"}), 400
+    if ml > 1000 or mt > 1000 or mr > 1000 or mb > 1000:
+        return jsonify({"error": "Margins exceed maximum (1000pt)"}), 400
 
-    job_id = str(uuid.uuid4())[:8]
-    job_dir = os.path.join(TEMP_DIR, job_id)
-    os.makedirs(job_dir, exist_ok=True)
-    pdf_path = os.path.join(job_dir, pdf_file.filename)
-    pdf_file.save(pdf_path)
-    output_dir = os.path.join(job_dir, 'output')
-    os.makedirs(output_dir, exist_ok=True)
-
-    jobs[job_id] = {"created": datetime.now(), "status": "processing",
-        "progress": {"stage": "scan", "current": 0, "total": 0, "message": "准备中..."},
-        "result": None, "error": None}
-
-    def on_progress(stage, cur, total, msg):
-        jobs[job_id]["progress"] = {"stage": stage, "current": cur, "total": total, "message": msg}
+    job_id, job_dir, output_dir, pdf_path = _create_job(TEMP_DIR, pdf_file)
+    on_progress = _make_on_progress(job_id)
 
     def run_us():
         try:
@@ -430,7 +443,7 @@ def api_cli():
     cli_temp = os.path.join(TEMP_DIR, 'cli_sessions')
     os.makedirs(cli_temp, exist_ok=True)
 
-    output, is_error = cli_engine.execute(command, sid, cli_temp)
+    output, is_error = cli_engine.execute(command, sid, cli_temp, g.lang)
     return jsonify({"output": output, "error": is_error})
 
 
@@ -482,12 +495,17 @@ def api_log():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
     port = app.config['SERVER_PORT']
     public = _runtime_config.get('public_access', False)
     host = '0.0.0.0' if public else '127.0.0.1'
     bind_info = f"http://0.0.0.0:{port} (public)" if public else f"http://localhost:{port}"
-    print("=" * 50)
-    print("  FBA Label Splitter V2.5")
-    print(f"  {bind_info}")
-    print("=" * 50)
+    logger.info("=" * 50)
+    logger.info("  FBA Label Splitter V2.6 Redesigned 1")
+    logger.info("  %s", bind_info)
+    logger.info("=" * 50)
     app.run(host=host, debug=False, port=port)

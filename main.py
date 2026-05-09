@@ -2,8 +2,9 @@ import fitz  # pip install pymupdf
 import re
 import os
 import csv
-import tkinter as tk
-from tkinter import filedialog, messagebox
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================
@@ -11,6 +12,8 @@ from tkinter import filedialog, messagebox
 # ============================================================
 
 def select_paths():
+    import tkinter as tk
+    from tkinter import filedialog
     root = tk.Tk()
     root.withdraw()
     root.attributes('-topmost', True)
@@ -32,7 +35,7 @@ def select_paths():
     csv_path = None
     if len(csv_files) == 1:
         csv_path = os.path.join(pdf_dir, csv_files[0])
-        print(f"Auto-matched packing list: {csv_files[0]}")
+        logger.info("Auto-matched packing list: %s", csv_files[0])
     elif len(csv_files) > 1:
         csv_path = filedialog.askopenfilename(
             title="Select packing list CSV (multiple found in same directory)",
@@ -108,7 +111,7 @@ class FBABlockSorter:
     def _emit(self, stage, current, total, message):
         if self.on_progress:
             self.on_progress(stage, current, total, message)
-        print(message)
+        logger.debug(message)
 
     def process(self):
         src_doc = fitz.open(self.input_pdf)
@@ -122,27 +125,45 @@ class FBABlockSorter:
             rect = page.rect
             w2, h2 = rect.width / 2, rect.height / 2
 
-            quadrants = [
-                fitz.Rect(0, 0, w2, h2),
-                fitz.Rect(w2, 0, rect.width, h2),
-                fitz.Rect(0, h2, w2, rect.height),
-                fitz.Rect(w2, h2, rect.width, rect.height)
-            ]
+            # Use positioned text blocks instead of clipped text scans.
+            # get_text("blocks") returns (x0,y0,x1,y1,text,...) per block;
+            # assign each block to exactly one quadrant by its center coordinate,
+            # eliminating boundary-overlap duplicates or misses.
+            blocks = page.get_text("blocks")
+            for block in blocks:
+                x0, y0, x1, y1, text = block[:5]
+                cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
 
-            for quad in quadrants:
-                text = page.get_text("text", clip=quad)
                 match = re.search(r'FBA[A-Z0-9]+U(\d+)', text)
-                if match:
-                    all_label_blocks.append({
-                        "suffix": int(match.group(1)),
-                        "page_idx": page_index,
-                        "crop_rect": quad
-                    })
+                if not match:
+                    continue
+
+                suffix = int(match.group(1))
+                col = 1 if cx >= w2 else 0
+                row = 1 if cy >= h2 else 0
+                quad = fitz.Rect(col * w2, row * h2,
+                                 (col + 1) * w2, (row + 1) * h2)
+
+                all_label_blocks.append({
+                    "suffix": suffix,
+                    "page_idx": page_index,
+                    "crop_rect": quad
+                })
 
             self._emit("scan", page_index + 1, total_pages,
                        f"Scanning... {page_index + 1}/{total_pages} pages")
 
         all_label_blocks.sort(key=lambda x: x['suffix'])
+
+        # Deduplication safety net: remove any duplicate (page_idx, suffix) pairs
+        seen_blocks = set()
+        deduped = []
+        for b in all_label_blocks:
+            key = (b["page_idx"], b["suffix"])
+            if key not in seen_blocks:
+                seen_blocks.add(key)
+                deduped.append(b)
+        all_label_blocks = deduped
 
         total_ranges = len(self.range_configs)
         self._emit("split", 0, total_ranges,
@@ -176,14 +197,18 @@ class FBABlockSorter:
 
             verify_doc = fitz.open(save_path)
             verify_order = []
+            verify_wrong = []
             for vp in verify_doc:
                 vt = vp.get_text("text")
                 vm = re.search(r'FBA[A-Z0-9]+U(\d+)', vt)
                 if vm:
-                    verify_order.append(int(vm.group(1)))
+                    val = int(vm.group(1))
+                    verify_order.append(val)
+                    if val < start or val > end:
+                        verify_wrong.append(val)
             verify_doc.close()
 
-            ok = verify_order == sorted(verify_order)
+            ok = verify_order == sorted(verify_order) and not verify_wrong
             status = "OK" if ok else "OUT_OF_ORDER!"
             sample = ", ".join(str(x) for x in export_order[:5])
             if len(export_order) > 5:
@@ -192,6 +217,9 @@ class FBABlockSorter:
             self.output_files.append(file_name)
             self._emit("split", ri + 1, total_ranges,
                        f"[{start}-{end}] {title} | {len(matched_blocks)} label(s) ({sample}) {status}")
+            if verify_wrong:
+                self._emit("split", ri + 1, total_ranges,
+                           f"  Labels outside range [{start}-{end}]: {sorted(verify_wrong)}")
             if not ok:
                 self._emit("split", ri + 1, total_ranges,
                            f"  Verification FAILED! Actual order: {verify_order}")
@@ -256,6 +284,7 @@ if __name__ == "__main__":
             print("No valid label ranges found in CSV.")
 
     if not ranges:
+        from tkinter import messagebox
         messagebox.showerror("Missing Range Configuration",
             "No valid label ranges found.\n\nMake sure a packing list CSV file exists in the same directory as the PDF.")
         exit()
