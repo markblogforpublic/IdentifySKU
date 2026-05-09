@@ -4,11 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FBA Label Splitter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 
     :root{/* 默认 Water Lilies 睡莲 */
       --bg:        #f0f4f1; --surface:   #ffffff; --border:    #d4e0d8;
@@ -16,7 +21,7 @@
       --primary-h: #3d6b4a; --primary-bg:#e8f0ea; --accent:    #7ba587;
       --danger:    #c53030; --success:   #2f855a;
     }
-    .theme-water{/* 默认 */}
+    .theme-water{}
     .theme-sunrise{
       --bg:#fef7f0; --surface:#fffaf5; --border:#f0dcc8; --text:#4a3728; --text-dim:#8b7355;
       --primary:#c97d3b; --primary-h:#b06a2d; --primary-bg:#fdf0e3; --accent:#e0a56f; --danger:#c53030; --success:#8b6914;
@@ -29,31 +34,41 @@
       --bg:#1a1a2e; --surface:#222240; --border:#333358; --text:#e4e4ed; --text-dim:#9999b3;
       --primary:#818cf8; --primary-h:#6366f1; --primary-bg:#1e1e3a; --accent:#a5b4fc; --danger:#f87171; --success:#6ee7b7;
     }
-    body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-    .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;border:none}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+    .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;border:none}
     .btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
     .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-h)}
     .btn-ghost{background:transparent;color:var(--primary)}.btn-ghost:hover{background:var(--primary-bg)}
-    .drop-zone{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .15s}
+    .drop-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .15s}
     .drop-zone:hover,.drop-zone.drag-over{border-color:var(--primary);background:var(--primary-bg)}
     .drop-zone:focus-within{outline:2px solid var(--primary);outline-offset:2px}
-    .nav-btn{min-height:40px;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--text-dim);border:none}
+    .sidebar-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;border:none;color:var(--text-dim);text-align:left}
+    .sidebar-btn:hover{background:var(--primary-bg);color:var(--text)}
+    .sidebar-btn.active{background:var(--primary-bg);color:var(--primary);font-weight:600}
+    .sidebar-btn i{flex-shrink:0}
+    .sidebar-btn span{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+    .nav-btn{min-height:40px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--text-dim);border:none}
     .nav-btn:hover{background:var(--primary-bg);color:var(--text)}
     .nav-btn.active{background:var(--primary);color:#fff}
-    .nav-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
     .progress-bar{transition:width .3s ease-out}
     .fade-in{animation:fadeIn .2s ease-out}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
     .range-tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:var(--primary-bg);color:var(--primary);border:1px solid var(--border)}
     .log-row{display:grid;grid-template-columns:140px 1fr 120px;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
-    .theme-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s}
-    .theme-swatch:hover,.theme-swatch.active{border-color:var(--primary);transform:scale(1.15)}
     ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    .sidebar-collapsed #sidebar{width:60px}
+    .sidebar-collapsed #sidebar-title,.sidebar-collapsed .sidebar-text{display:none}
+    .sidebar-collapsed #sidebar-logo{justify-content:center}
+    .sidebar-collapsed #sidebar-bottom{padding:12px 8px}
+    .sidebar-collapsed #sidebar-bottom .sidebar-btn{justify-content:center;padding:10px 0}
+    .sidebar-collapsed #sidebar-bottom #user-area{justify-content:center}
+    .sidebar-collapsed #sidebar-bottom #user-logout-btn{display:none!important}
+    .sidebar-collapsed .sidebar-btn{justify-content:center;padding:10px 0}
+    .sidebar-collapsed .sidebar-btn span{display:none}
   </style>
 </head>
-<body class="h-full">
+<body class="h-full flex overflow-hidden">
 
 <!-- ====== Login Overlay ====== -->
 <div id="login-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.55)">
@@ -84,358 +99,409 @@
   </div>
 </div>
 
-<div id="app-container" class="min-h-full flex flex-col max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+<div id="app-container" class="flex h-full w-full">
 
-  <!-- ====== Header ====== -->
-  <header class="flex items-center gap-3 mb-5">
-    <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--primary)">
-      <i data-lucide="package-open" class="w-5 h-5 text-white"></i>
-    </div>
-    <div class="flex-1 min-w-0">
-      <h1 class="text-base font-semibold leading-tight" data-i18n="app_title" style="color:var(--text)">FBA Label Splitter</h1>
-      <p class="text-xs" data-i18n="app_subtitle" style="color:var(--text-dim)">Amazon FBA Label Intelligent Splitter</p>
-    </div>
-    <!-- Language toggle -->
-    <button id="lang-toggle" class="text-xs px-2 py-1 rounded flex-shrink-0" style="border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text-dim)" title="Switch language">中/EN</button>
-    <!-- User area -->
-    <div id="user-area" class="flex items-center gap-2 flex-shrink-0">
-      <span id="user-avatar" class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold" style="background:var(--border);color:var(--text-dim)">G</span>
-      <span id="user-name" class="text-xs font-medium" style="color:var(--text-dim)">Guest</span>
-      <button id="user-logout-btn" class="hidden text-xs px-2 py-1 rounded" style="color:var(--text-dim);border:1px solid var(--border);background:transparent;cursor:pointer" title="Logout"><span data-i18n="logout">Logout</span></button>
-    </div>
-    <!-- Theme quick switcher -->
-    <div class="flex items-center gap-1.5" id="theme-switcher-mini" title="Quick switch theme">
-      <span class="theme-swatch" data-theme="theme-water" style="background:linear-gradient(135deg,#4a7c59,#7ba587)"></span>
-      <span class="theme-swatch" data-theme="theme-sunrise" style="background:linear-gradient(135deg,#c97d3b,#e0a56f)"></span>
-      <span class="theme-swatch" data-theme="theme-garden" style="background:linear-gradient(135deg,#7c5cbf,#a78fcf)"></span>
-      <span class="theme-swatch" data-theme="theme-dark" style="background:linear-gradient(135deg,#6366f1,#a5b4fc)"></span>
-    </div>
-  </header>
-
-  <!-- ====== Navigation ====== -->
-  <nav class="flex gap-2 mb-5 flex-wrap" role="tablist">
-    <button class="nav-btn active" data-tab="uk" role="tab" aria-selected="true">
-      <i data-lucide="flag" class="w-3.5 h-3.5"></i> <span data-i18n="nav_uk">UK</span>
-    </button>
-    <button class="nav-btn" data-tab="au" role="tab" aria-selected="false">
-      <i data-lucide="flag" class="w-3.5 h-3.5"></i> <span data-i18n="nav_au">AU</span>
-    </button>
-    <button class="nav-btn" data-tab="us" role="tab" aria-selected="false">
-      <i data-lucide="flag" class="w-3.5 h-3.5"></i> <span data-i18n="nav_us">US</span>
-    </button>
-    <button class="nav-btn" data-tab="about" role="tab" aria-selected="false">
-      <i data-lucide="info" class="w-3.5 h-3.5"></i> <span data-i18n="nav_about">About</span>
-    </button>
-  </nav>
-
-  <!-- ====== Content area + CLI panel ====== -->
-  <div id="content-area" class="flex gap-0 flex-1 min-h-0">
-
-  <div id="main-content" class="flex-1 min-w-0 space-y-4">
-  <main id="tab-uk" class="flex-1 space-y-4 fade-in" role="tabpanel">
-    <div class="flex items-center gap-2 mb-1">
-      <span id="region-badge" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-white" style="background:var(--primary)">UK</span>
-      <span class="text-xs" data-i18n="nav_region_badge" style="color:var(--text-dim)">Region</span>
-    </div>
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">1</span>
-        <h2 class="text-sm font-semibold" data-i18n="uk_step1_title">Upload FBA Label PDF</h2>
-        <span class="text-xs ml-auto" style="color:var(--danger)"><span data-i18n="uk_step1_required">* Required</span></span>
-      </div>
-      <div id="pdf-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select PDF file">
-        <input type="file" id="pdf-input" accept=".pdf" aria-hidden="true">
-        <i data-lucide="file-text" class="w-8 h-8 mx-auto mb-2" style="color:var(--text-dim)"></i>
-        <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step1_hint">or drag PDF here</span></p>
-        <p id="pdf-file-name" class="text-xs hidden" style="color:var(--primary)"></p>
-      </div>
-    </section>
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">2</span>
-        <h2 class="text-sm font-semibold" data-i18n="uk_step2_title">Upload Packing List (CSV / Excel, optional)</h2>
-      </div>
-      <div id="csv-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select CSV or Excel file">
-        <input type="file" id="csv-input" accept=".csv,.xlsx,.xls" aria-hidden="true">
-        <i data-lucide="table" class="w-8 h-8 mx-auto mb-2" style="color:var(--text-dim)"></i>
-        <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step2_hint">or drag CSV / Excel here</span></p>
-        <p class="text-xs" data-i18n="uk_step2_auto" style="color:var(--text-dim)">Ranges will be auto-populated after upload</p>
-        <p id="csv-file-name" class="text-xs font-medium mt-1 hidden" style="color:var(--primary)"></p>
-      </div>
-    </section>
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">3</span>
-          <h2 class="text-sm font-semibold" data-i18n="uk_step3_title">Label Range Configuration</h2>
-          <span id="range-count" class="text-xs font-medium px-2 py-0.5 rounded" style="background:var(--primary-bg);color:var(--primary)">0</span>
+  <!-- ====== Sidebar ====== -->
+  <aside id="sidebar" class="w-64 flex-shrink-0 flex flex-col border-r" style="border-color:var(--border);background:var(--surface);transition:width .2s">
+    <div class="p-4 pb-3 flex items-center justify-between">
+      <div id="sidebar-logo" class="flex items-center gap-3 min-w-0 overflow-hidden">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:var(--primary)">
+          <i data-lucide="package-open" class="w-5 h-5 text-white"></i>
         </div>
-        <button id="add-range-btn" class="btn btn-ghost text-xs" style="min-height:32px;padding:4px 12px">
-          <i data-lucide="plus" class="w-3.5 h-3.5"></i> <span data-i18n="uk_step3_add">Add Range</span>
-        </button>
+        <div id="sidebar-title" class="min-w-0 whitespace-nowrap">
+          <h1 class="text-base font-bold leading-tight truncate" style="color:var(--text)" data-i18n="app_title">FBA Label Splitter</h1>
+          <p class="text-xs" style="color:var(--text-dim)" data-i18n="app_version">V2.6</p>
+        </div>
       </div>
-      <p class="text-xs mb-3" data-i18n="uk_step3_hint" style="color:var(--text-dim)">Auto-filled from CSV, or add manually. At least one range required.</p>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm" id="range-table">
-          <thead>
-            <tr style="color:var(--text-dim);border-bottom:2px solid var(--border)">
-              <th class="text-left pb-2 font-medium text-xs w-8">#</th>
-              <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_title">Title</th>
-              <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_start" style="width:80px">Start</th>
-              <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_end" style="width:80px">End</th>
-              <th class="pb-2" style="width:40px"></th>
-            </tr>
-          </thead>
-          <tbody id="range-tbody">
-            <tr id="range-empty-row">
-              <td colspan="5" class="py-6 text-center text-xs" data-i18n="uk_step3_empty" style="color:var(--text-dim)">No ranges — upload CSV or click Add Range</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">4</span>
-        <h2 class="text-sm font-semibold" data-i18n="uk_step4_title">Process</h2>
-      </div>
-      <button id="process-btn" class="btn btn-primary w-full" disabled>
-        <i data-lucide="play" class="w-4 h-4"></i> <span data-i18n="uk_step4_btn">Start Splitting</span>
+      <button id="sidebar-toggle" class="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0" style="background:transparent;border:none;cursor:pointer;color:var(--text-dim)" title="Toggle sidebar">
+        <i data-lucide="panel-left-close" class="w-4 h-4"></i>
       </button>
-      <p id="process-hint" class="text-xs text-center mt-2" data-i18n="uk_step4_hint" style="color:var(--text-dim)">Please select a PDF and configure at least one range</p>
-      <div id="progress-section" class="hidden mt-4 fade-in">
-        <div class="flex items-center justify-between mb-2">
-          <span id="progress-stage" class="text-xs font-medium" style="color:var(--primary)"></span>
-          <span id="progress-percent" class="text-xs" style="color:var(--text-dim)"></span>
-        </div>
-        <div class="w-full rounded-full h-2 overflow-hidden" style="background:var(--border)">
-          <div id="progress-bar" class="progress-bar h-2 rounded-full" style="width:0%;background:var(--primary)"></div>
-        </div>
-        <p id="progress-msg" class="text-xs mt-2" style="color:var(--text-dim)"></p>
-      </div>
-      <div id="error-section" class="hidden mt-4 p-3 rounded-lg fade-in" style="background:#fef2f2;border:1px solid #fecaca">
-        <div class="flex gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i><p id="error-msg" class="text-sm text-red-700"></p></div>
-      </div>
-    </section>
-    <section id="results-section" class="hidden card p-5 sm:p-6 fade-in">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:#d1fae5;color:#065f46"><i data-lucide="check" class="w-3 h-3"></i></span>
-        <h2 class="text-sm font-semibold" data-i18n="uk_result_title">Results</h2>
-      </div>
-      <div id="files-list" class="space-y-2 mb-4"></div>
-      <button id="download-all-btn" class="btn btn-ghost w-full border" style="border-color:var(--border)">
-        <i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="uk_result_dl_all">Download All as ZIP</span>
+    </div>
+    <nav class="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto" role="tablist">
+      <button class="sidebar-btn active" data-tab="uk" role="tab" aria-selected="true">
+        <i data-lucide="flag" class="w-4 h-4"></i>
+        <span><span class="font-medium">UK</span> <span class="text-xs opacity-70" data-i18n="nav_uk">英国版</span></span>
       </button>
-    </section>
-  </main>
-
-  <!-- ====== TAB: US (TransferSKU) ====== -->
-  <main id="tab-us" class="hidden flex-1 space-y-4 fade-in" role="tabpanel">
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">1</span>
-        <h2 class="text-sm font-semibold" data-i18n="us_step1_title">Upload SKU Label PDF</h2>
-      </div>
-      <div id="us-pdf-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select PDF file">
-        <input type="file" id="us-pdf-input" accept=".pdf" aria-hidden="true">
-        <i data-lucide="file-text" class="w-8 h-8 mx-auto mb-2" style="color:var(--text-dim)"></i>
-        <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step1_hint">or drag PDF here</span></p>
-        <p class="text-xs" data-i18n="us_step1_hint" style="color:var(--text-dim)">Supports PDFs with "Single SKU" markers</p>
-        <p id="us-pdf-file-name" class="text-xs hidden" style="color:var(--primary)"></p>
-      </div>
-    </section>
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">2</span>
-        <h2 class="text-sm font-semibold" data-i18n="us_step2_title">Grid Layout Settings</h2>
-      </div>
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_rows">Rows</label><input id="us-rows" type="number" value="3" min="1" max="10" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
-        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_cols">Columns</label><input id="us-cols" type="number" value="2" min="1" max="10" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
-      </div>
-      <button id="us-adv-toggle" class="btn btn-ghost text-xs w-full" style="min-height:32px" type="button"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i> <span data-i18n="us_step2_adv">Advanced Margin Settings</span></button>
-      <div id="us-adv-panel" class="hidden mt-3 pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3" style="border-top:1px solid var(--border)">
-        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_ml">Left Margin</label><input id="us-ml" type="number" value="0" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
-        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_mt">Top Margin</label><input id="us-mt" type="number" value="40" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
-        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_mr">Right Margin</label><input id="us-mr" type="number" value="0" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
-        <div><label class="text-xs font-medium mb-1 block" style="color:var(--text_dim)" data-i18n="us_step2_mb">Bottom Margin</label><input id="us-mb" type="number" value="40" step="0.5" class="w-full text-sm px-3 py-2 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
-      </div>
-    </section>
-    <section class="card p-5 sm:p-6">
-      <div class="flex items-center gap-2 mb-4"><span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">3</span><h2 class="text-sm font-semibold" data-i18n="us_step3_title">Process</h2></div>
-      <button id="us-process-btn" class="btn btn-primary w-full" disabled><i data-lucide="play" class="w-4 h-4"></i> <span data-i18n="us_step3_btn">Start Conversion</span></button>
-      <p id="us-process-hint" class="text-xs text-center mt-2" data-i18n="us_step3_hint" style="color:var(--text-dim)">Please select a PDF file first</p>
-      <div id="us-progress-section" class="hidden mt-4 fade-in">
-        <div class="flex items-center justify-between mb-2"><span id="us-progress-stage" class="text-xs font-medium" style="color:var(--primary)"></span><span id="us-progress-percent" class="text-xs" style="color:var(--text-dim)"></span></div>
-        <div class="w-full rounded-full h-2 overflow-hidden" style="background:var(--border)"><div id="us-progress-bar" class="progress-bar h-2 rounded-full" style="width:0%;background:var(--primary)"></div></div>
-        <p id="us-progress-msg" class="text-xs mt-2" style="color:var(--text-dim)"></p>
-      </div>
-      <div id="us-error-section" class="hidden mt-4 p-3 rounded-lg fade-in" style="background:#fef2f2;border:1px solid #fecaca"><div class="flex gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i><p id="us-error-msg" class="text-sm text-red-700"></p></div></div>
-    </section>
-    <section id="us-results-section" class="hidden card p-5 sm:p-6 fade-in">
-      <h2 class="text-sm font-semibold mb-3" data-i18n="us_result_title">Export Results</h2>
-      <div id="us-files-list" class="space-y-2 mb-4"></div>
-      <button id="us-download-all-btn" class="btn btn-ghost w-full border" style="border-color:var(--border)"><i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="uk_result_dl_all">Download All as ZIP</span></button>
-    </section>
-  </main>
-
-  <!-- ====== TAB: AU (placeholder) ====== -->
-  <main id="tab-au" class="hidden flex-1 fade-in" role="tabpanel">
-    <section class="card p-10 sm:p-14 text-center">
-      <i data-lucide="hammer" class="w-12 h-12 mx-auto mb-4" style="color:var(--text-dim)"></i>
-      <h2 class="text-lg font-semibold mb-2" data-i18n="au_dev_title">AU Version — Under Development</h2>
-      <p class="text-sm" data-i18n="au_dev_desc" style="color:var(--text-dim);max-width:320px;margin:0 auto">Amazon Australia FBA label splitting is under development. Stay tuned.</p>
-      <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs" style="background:var(--primary-bg);color:var(--primary)"><i data-lucide="clock" class="w-3.5 h-3.5"></i> <span data-i18n="au_dev_eta">ETA: 2026 Q3</span></div>
-    </section>
-  </main>
-
-  <!-- ====== TAB: About ====== -->
-  <main id="tab-about" class="hidden flex-1 space-y-4 fade-in" role="tabpanel">
-    <nav class="flex gap-2 flex-wrap" role="tablist">
-      <button class="nav-btn active" data-about-sub="log"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <span data-i18n="about_log">Logs</span></button>
-      <button class="nav-btn" data-about-sub="theme"><i data-lucide="palette" class="w-3.5 h-3.5"></i> <span data-i18n="about_theme">Theme</span></button>
-      <button class="nav-btn" data-about-sub="user"><i data-lucide="user" class="w-3.5 h-3.5"></i> <span data-i18n="about_user">User Info</span></button>
-      <button class="nav-btn" data-about-sub="dev"><i data-lucide="code" class="w-3.5 h-3.5"></i> <span data-i18n="about_dev">Developer</span></button>
+      <button class="sidebar-btn" data-tab="au" role="tab" aria-selected="false">
+        <i data-lucide="flag" class="w-4 h-4"></i>
+        <span><span class="font-medium">AU</span> <span class="text-xs opacity-70" data-i18n="nav_au">澳洲版</span></span>
+      </button>
+      <button class="sidebar-btn" data-tab="us" role="tab" aria-selected="false">
+        <i data-lucide="flag" class="w-4 h-4"></i>
+        <span><span class="font-medium">US</span> <span class="text-xs opacity-70" data-i18n="nav_us">美国版</span></span>
+      </button>
     </nav>
-    <section id="about-log" class="card p-5 sm:p-6 fade-in" role="tabpanel">
-      <h3 class="text-sm font-semibold mb-3" data-i18n="about_log_title">Processing Logs</h3>
-      <p class="text-xs mb-4" data-i18n="about_log_desc" style="color:var(--text-dim)">Record of each upload and processing task</p>
-      <div id="log-entries" class="divide-y" style="border-color:var(--border)"><p class="text-xs py-4" data-i18n="about_log_empty" style="color:var(--text-dim)">No log records</p></div>
-      <button id="clear-log-btn" class="btn btn-ghost text-xs mt-3" style="min-height:32px;padding:4px 12px"><i data-lucide="trash-2" class="w-3 h-3"></i> <span data-i18n="about_log_clear">Clear Logs</span></button>
-    </section>
-    <section id="about-theme" class="hidden card p-5 sm:p-6 fade-in" role="tabpanel">
-      <h3 class="text-sm font-semibold mb-3" data-i18n="about_theme_title">Theme Settings</h3>
-      <p class="text-xs mb-5" data-i18n="about_theme_desc" style="color:var(--text-dim)">Choose a theme to apply instantly</p>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-water"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#4a7c59,#7ba587)"></div><p class="text-xs font-medium" data-i18n="about_theme_water">Water Lilies</p><p class="text-xs" style="color:var(--text-dim)">Water Lilies</p></button>
-        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-sunrise"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#c97d3b,#e0a56f)"></div><p class="text-xs font-medium" data-i18n="about_theme_sunrise">Sunrise</p><p class="text-xs" style="color:var(--text-dim)">Sunrise</p></button>
-        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-garden"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#7c5cbf,#a78fcf)"></div><p class="text-xs font-medium" data-i18n="about_theme_garden">Garden</p><p class="text-xs" style="color:var(--text-dim)">Garden</p></button>
-        <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-dark"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#6366f1,#a5b4fc)"></div><p class="text-xs font-medium" data-i18n="about_theme_dark">Dark Mode</p><p class="text-xs" style="color:var(--text-dim)">Dark Mode</p></button>
-      </div>
-    </section>
-    <section id="about-user" class="hidden card p-5 sm:p-6 fade-in" role="tabpanel">
-      <h3 class="text-sm font-semibold mb-4" data-i18n="about_user_title">Personal Info</h3>
-      <div class="space-y-3">
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_ip" style="color:var(--text-dim)">IP Address</span><span id="user-ip" class="text-sm font-medium" data-i18n="loading">Loading...</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_lang" style="color:var(--text-dim)">Language</span><span id="user-lang" class="text-sm font-medium">Loading...</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_browser" style="color:var(--text-dim)">Browser</span><span id="user-browser" class="text-sm font-medium">Loading...</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_os" style="color:var(--text-dim)">Operating System</span><span id="user-os" class="text-sm font-medium">Loading...</span></div>
-        <div class="flex justify-between items-center py-2"><span class="text-xs" data-i18n="about_user_screen" style="color:var(--text-dim)">Screen Resolution</span><span id="user-screen" class="text-sm font-medium">Loading...</span></div>
-      </div>
-    </section>
-    <section id="about-dev" class="hidden card p-5 sm:p-6 fade-in" role="tabpanel">
-      <h3 class="text-sm font-semibold mb-3" data-i18n="about_dev_title">Developer Info</h3>
-      <div class="space-y-3">
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_name" style="color:var(--text-dim)">Developer</span><span class="text-sm font-medium">Mark</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_engine" style="color:var(--text-dim)">Backend Engine</span><span class="text-sm font-medium">Python + PyMuPDF</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_web" style="color:var(--text-dim)">Web Framework</span><span class="text-sm font-medium">Flask + Jinja2</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_frontend" style="color:var(--text-dim)">Frontend</span><span class="text-sm font-medium">Tailwind CSS + Lucide Icons</span></div>
-        <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_ai" style="color:var(--text-dim)">AI Collaboration</span><span class="text-sm font-medium">Claude</span></div>
-        <div class="py-3 mt-2"><p class="text-xs leading-relaxed" data-i18n="about_dev_footer" style="color:var(--text-dim)">Built by markblogforpublic.github.io & Claude</p></div>
-      </div>
-    </section>
-  </main>
-
-  </div><!-- /#main-content -->
-
-  <!-- ====== CLI Main View (full-screen terminal mode) ====== -->
-  <div id="cli-main-view" class="hidden flex-1 flex flex-col min-h-0 fade-in">
-    <!-- Top bar -->
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center gap-2">
-        <span class="w-7 h-7 rounded flex items-center justify-center" style="background:var(--primary)">
-          <i data-lucide="terminal" class="w-3.5 h-3.5 text-white"></i>
-        </span>
-        <span class="text-sm font-semibold" data-i18n="cli_terminal_title">CLI Terminal</span>
-        <span class="text-xs px-2 py-0.5 rounded" style="background:var(--primary-bg);color:var(--primary)">FBA Label Splitter</span>
-      </div>
-      <button id="cli-exit-btn" class="btn btn-ghost text-xs" style="min-height:32px;padding:4px 14px">
-        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> <span data-i18n="cli_return_gui">Return to GUI</span>
+    <div id="sidebar-bottom" class="border-t p-4 space-y-3 overflow-hidden" style="border-color:var(--border)">
+      <button class="sidebar-btn" data-tab="about" role="tab" aria-selected="false" style="margin-bottom:4px">
+        <i data-lucide="settings" class="w-4 h-4"></i>
+        <span class="sidebar-text" data-i18n="nav_about">设置与关于</span>
       </button>
+      <div id="user-area" class="flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="user-avatar" class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold flex-shrink-0" style="background:var(--border);color:var(--text-dim)">G</span>
+          <span id="user-name" class="sidebar-text text-sm font-medium truncate" style="color:var(--text-dim)">Guest</span>
+        </div>
+        <button id="user-logout-btn" class="hidden text-xs px-2 py-1 rounded flex-shrink-0" style="color:var(--text-dim);border:1px solid var(--border);background:transparent;cursor:pointer;title="Logout"><span class="sidebar-text" data-i18n="logout">Logout</span></button>
+      </div>
+      <div class="relative" id="lang-wrapper">
+        <button id="lang-toggle" class="w-full text-xs py-2 rounded-lg flex items-center justify-center gap-2" style="border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text-dim)">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+          <span class="sidebar-text" id="lang-label">中/EN/日本語</span>
+        </button>
+        <div id="lang-menu" class="hidden absolute bottom-full left-0 right-0 mb-1 rounded-lg overflow-hidden shadow-lg" style="background:var(--surface);border:1px solid var(--border);z-index:100">
+          <button class="lang-opt w-full text-left px-4 py-2.5 text-xs font-medium hover:opacity-80 transition-colors" data-lang="zh" style="color:var(--text);background:transparent;border:none;cursor:pointer">中文</button>
+          <button class="lang-opt w-full text-left px-4 py-2.5 text-xs font-medium hover:opacity-80 transition-colors" data-lang="en" style="color:var(--text);background:transparent;border:none;cursor:pointer" style="border-top:1px solid var(--border)">English</button>
+          <button class="lang-opt w-full text-left px-4 py-2.5 text-xs font-medium hover:opacity-80 transition-colors" data-lang="ja" style="color:var(--text);background:transparent;border:none;cursor:pointer" style="border-top:1px solid var(--border)">日本語</button>
+        </div>
+      </div>
     </div>
-    <!-- Left-right split -->
-    <div class="flex gap-3 flex-1 min-h-0">
-      <!-- Left: terminal -->
-      <div class="flex-1 flex flex-col min-w-0">
-        <div id="cli-output" class="flex-1 overflow-y-auto rounded-lg p-4 font-mono text-xs" style="background:#1a1a2e;color:#a5b4fc">
-          <div id="cli-output-content">
-            <div style="color:#6ee7b7">╔══════════════════════════════════════════╗</div>
-            <div style="color:#6ee7b7"><span data-i18n="cli_welcome_line1">║   FBA Label Splitter CLI v2.5          ║</span></div>
-            <div style="color:#6ee7b7">╚══════════════════════════════════════════╝</div>
-            <div style="color:#9999b3" data-i18n="cli_welcome_line2">Type 'help' for available commands.</div>
-            <div style="color:#9999b3" data-i18n="cli_welcome_line3">Press up/down arrow for command history.</div>
-            <div>&nbsp;</div>
+  </aside>
+
+  <!-- ====== Main Content ====== -->
+  <div class="flex-1 flex flex-col min-h-0 overflow-auto p-6">
+
+    <div id="main-content" class="flex-1 space-y-5">
+
+    <!-- ====== TAB: UK ====== -->
+    <main id="tab-uk" class="space-y-5 fade-in" role="tabpanel">
+      <div class="flex items-center gap-2">
+        <span id="region-badge" class="inline-flex items-center gap-1 px-3 py-1 rounded-md text-sm font-semibold text-white" style="background:var(--primary)">UK</span>
+        <span class="text-xs" data-i18n="nav_region_badge" style="color:var(--text-dim)">Region</span>
+      </div>
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">1</span>
+          <h2 class="text-base font-semibold" data-i18n="uk_step1_title">Upload FBA Label PDF</h2>
+          <span class="text-xs ml-auto" style="color:var(--danger)"><span data-i18n="uk_step1_required">* Required</span></span>
+        </div>
+        <div id="pdf-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select PDF file">
+          <input type="file" id="pdf-input" accept=".pdf" aria-hidden="true">
+          <i data-lucide="file-text" class="w-10 h-10 mx-auto mb-2" style="color:var(--text-dim)"></i>
+          <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step1_hint">or drag PDF here</span></p>
+          <p id="pdf-file-name" class="text-xs hidden" style="color:var(--primary)"></p>
+        </div>
+      </section>
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">2</span>
+          <h2 class="text-base font-semibold" data-i18n="uk_step2_title">Upload Packing List (CSV / Excel, optional)</h2>
+        </div>
+        <div id="csv-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select CSV or Excel file">
+          <input type="file" id="csv-input" accept=".csv,.xlsx,.xls" aria-hidden="true">
+          <i data-lucide="table" class="w-10 h-10 mx-auto mb-2" style="color:var(--text-dim)"></i>
+          <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step2_hint">or drag CSV / Excel here</span></p>
+          <p class="text-xs" data-i18n="uk_step2_auto" style="color:var(--text-dim)">Ranges will be auto-populated after upload</p>
+          <p id="csv-file-name" class="text-xs font-medium mt-1 hidden" style="color:var(--primary)"></p>
+        </div>
+      </section>
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">3</span>
+            <h2 class="text-base font-semibold" data-i18n="uk_step3_title">Label Range Configuration</h2>
+            <span id="range-count" class="text-xs font-medium px-2 py-0.5 rounded" style="background:var(--primary-bg);color:var(--primary)">0</span>
+          </div>
+          <button id="add-range-btn" class="btn btn-ghost text-xs" style="min-height:36px;padding:6px 14px">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> <span data-i18n="uk_step3_add">Add Range</span>
+          </button>
+        </div>
+        <p class="text-xs mb-4" data-i18n="uk_step3_hint" style="color:var(--text-dim)">Auto-filled from CSV, or add manually. At least one range required.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm" id="range-table">
+            <thead>
+              <tr style="color:var(--text-dim);border-bottom:2px solid var(--border)">
+                <th class="text-left pb-2 font-medium text-xs w-8">#</th>
+                <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_title">Title</th>
+                <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_start" style="width:80px">Start</th>
+                <th class="text-left pb-2 font-medium text-xs" data-i18n="uk_step3_col_end" style="width:80px">End</th>
+                <th class="pb-2" style="width:40px"></th>
+              </tr>
+            </thead>
+            <tbody id="range-tbody">
+              <tr id="range-empty-row">
+                <td colspan="5" class="py-6 text-center text-xs" data-i18n="uk_step3_empty" style="color:var(--text-dim)">No ranges — upload CSV or click Add Range</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">4</span>
+          <h2 class="text-base font-semibold" data-i18n="uk_step4_title">Process</h2>
+        </div>
+        <button id="process-btn" class="btn btn-primary w-full" disabled>
+          <i data-lucide="play" class="w-4 h-4"></i> <span data-i18n="uk_step4_btn">Start Splitting</span>
+        </button>
+        <p id="process-hint" class="text-xs text-center mt-3" data-i18n="uk_step4_hint" style="color:var(--text-dim)">Please select a PDF and configure at least one range</p>
+        <div id="progress-section" class="hidden mt-4 fade-in">
+          <div class="flex items-center justify-between mb-2">
+            <span id="progress-stage" class="text-xs font-medium" style="color:var(--primary)"></span>
+            <span id="progress-percent" class="text-xs" style="color:var(--text-dim)"></span>
+          </div>
+          <div class="w-full rounded-full h-2 overflow-hidden" style="background:var(--border)">
+            <div id="progress-bar" class="progress-bar h-2 rounded-full" style="width:0%;background:var(--primary)"></div>
+          </div>
+          <p id="progress-msg" class="text-xs mt-2" style="color:var(--text-dim)"></p>
+        </div>
+        <div id="error-section" class="hidden mt-4 p-3 rounded-lg fade-in" style="background:#fef2f2;border:1px solid #fecaca">
+          <div class="flex gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i><p id="error-msg" class="text-sm text-red-700"></p></div>
+        </div>
+      </section>
+      <section id="results-section" class="hidden card p-6 sm:p-7 fade-in">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:#d1fae5;color:#065f46"><i data-lucide="check" class="w-3 h-3"></i></span>
+          <h2 class="text-base font-semibold" data-i18n="uk_result_title">Results</h2>
+        </div>
+        <div id="files-list" class="space-y-2 mb-4"></div>
+        <button id="download-all-btn" class="btn btn-ghost w-full border" style="border-color:var(--border)">
+          <i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="uk_result_dl_all">Download All as ZIP</span>
+        </button>
+      </section>
+    </main>
+
+    <!-- ====== TAB: US ====== -->
+    <main id="tab-us" class="hidden space-y-5 fade-in" role="tabpanel">
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">1</span>
+          <h2 class="text-base font-semibold" data-i18n="us_step1_title">Upload SKU Label PDF</h2>
+        </div>
+        <div id="us-pdf-drop-zone" class="drop-zone relative" tabindex="0" role="button" aria-label="Select PDF file">
+          <input type="file" id="us-pdf-input" accept=".pdf" aria-hidden="true">
+          <i data-lucide="file-text" class="w-10 h-10 mx-auto mb-2" style="color:var(--text-dim)"></i>
+          <p class="text-sm mb-1"><span class="font-medium" style="color:var(--primary)">Click</span> <span data-i18n="uk_step1_hint">or drag PDF here</span></p>
+          <p class="text-xs" data-i18n="us_step1_hint" style="color:var(--text-dim)">Supports PDFs with "Single SKU" markers</p>
+          <p id="us-pdf-file-name" class="text-xs hidden" style="color:var(--primary)"></p>
+        </div>
+      </section>
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">2</span>
+          <h2 class="text-base font-semibold" data-i18n="us_step2_title">Grid Layout Settings</h2>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_rows">Rows</label><input id="us-rows" type="number" value="3" min="1" max="10" class="w-full text-sm px-3 py-2.5 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+          <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_cols">Columns</label><input id="us-cols" type="number" value="2" min="1" max="10" class="w-full text-sm px-3 py-2.5 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+        </div>
+        <button id="us-adv-toggle" class="btn btn-ghost text-xs w-full" style="min-height:36px" type="button"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i> <span data-i18n="us_step2_adv">Advanced Margin Settings</span></button>
+        <div id="us-adv-panel" class="hidden mt-4 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4" style="border-top:1px solid var(--border)">
+          <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_ml">Left Margin</label><input id="us-ml" type="number" value="0" step="0.5" class="w-full text-sm px-3 py-2.5 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+          <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_mt">Top Margin</label><input id="us-mt" type="number" value="40" step="0.5" class="w-full text-sm px-3 py-2.5 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+          <div><label class="text-xs font-medium mb-1 block" style="color:var(--text-dim)" data-i18n="us_step2_mr">Right Margin</label><input id="us-mr" type="number" value="0" step="0.5" class="w-full text-sm px-3 py-2.5 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+          <div><label class="text-xs font-medium mb-1 block" style="color:var(--text_dim)" data-i18n="us_step2_mb">Bottom Margin</label><input id="us-mb" type="number" value="40" step="0.5" class="w-full text-sm px-3 py-2.5 rounded-lg border outline-none bg-transparent" style="border-color:var(--border);color:var(--text)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></div>
+        </div>
+      </section>
+      <section class="card p-6 sm:p-7">
+        <div class="flex items-center gap-3 mb-5"><span class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold flex-shrink-0" style="background:var(--primary-bg);color:var(--primary)">3</span><h2 class="text-base font-semibold" data-i18n="us_step3_title">Process</h2></div>
+        <button id="us-process-btn" class="btn btn-primary w-full" disabled><i data-lucide="play" class="w-4 h-4"></i> <span data-i18n="us_step3_btn">Start Conversion</span></button>
+        <p id="us-process-hint" class="text-xs text-center mt-3" data-i18n="us_step3_hint" style="color:var(--text-dim)">Please select a PDF file first</p>
+        <div id="us-progress-section" class="hidden mt-4 fade-in">
+          <div class="flex items-center justify-between mb-2"><span id="us-progress-stage" class="text-xs font-medium" style="color:var(--primary)"></span><span id="us-progress-percent" class="text-xs" style="color:var(--text-dim)"></span></div>
+          <div class="w-full rounded-full h-2 overflow-hidden" style="background:var(--border)"><div id="us-progress-bar" class="progress-bar h-2 rounded-full" style="width:0%;background:var(--primary)"></div></div>
+          <p id="us-progress-msg" class="text-xs mt-2" style="color:var(--text-dim)"></p>
+        </div>
+        <div id="us-error-section" class="hidden mt-4 p-3 rounded-lg fade-in" style="background:#fef2f2;border:1px solid #fecaca"><div class="flex gap-2"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i><p id="us-error-msg" class="text-sm text-red-700"></p></div></div>
+      </section>
+      <section id="us-results-section" class="hidden card p-6 sm:p-7 fade-in">
+        <h2 class="text-base font-semibold mb-4" data-i18n="us_result_title">Export Results</h2>
+        <div id="us-files-list" class="space-y-2 mb-4"></div>
+        <button id="us-download-all-btn" class="btn btn-ghost w-full border" style="border-color:var(--border)"><i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="uk_result_dl_all">Download All as ZIP</span></button>
+      </section>
+    </main>
+
+    <!-- ====== TAB: AU ====== -->
+    <main id="tab-au" class="hidden fade-in" role="tabpanel">
+      <section class="card p-12 sm:p-16 text-center">
+        <i data-lucide="hammer" class="w-14 h-14 mx-auto mb-5" style="color:var(--text-dim)"></i>
+        <h2 class="text-xl font-bold mb-3" data-i18n="au_dev_title">AU Version — Under Development</h2>
+        <p class="text-sm" data-i18n="au_dev_desc" style="color:var(--text-dim);max-width:340px;margin:0 auto">Amazon Australia FBA label splitting is under development. Stay tuned.</p>
+        <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs" style="background:var(--primary-bg);color:var(--primary)"><i data-lucide="clock" class="w-3.5 h-3.5"></i> <span data-i18n="au_dev_eta">ETA: 2026 Q3</span></div>
+      </section>
+    </main>
+
+    <!-- ====== TAB: About ====== -->
+    <main id="tab-about" class="hidden space-y-4 fade-in" role="tabpanel">
+      <nav class="flex gap-2 flex-wrap" role="tablist">
+        <button class="nav-btn active" data-about-sub="log"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> <span data-i18n="about_log">Logs</span></button>
+        <button class="nav-btn" data-about-sub="user"><i data-lucide="user" class="w-3.5 h-3.5"></i> <span data-i18n="about_user">User Info</span></button>
+        <button class="nav-btn" data-about-sub="theme"><i data-lucide="palette" class="w-3.5 h-3.5"></i> <span data-i18n="about_theme">Theme</span></button>
+        <button class="nav-btn" data-about-sub="dev"><i data-lucide="code" class="w-3.5 h-3.5"></i> <span data-i18n="about_dev">Developer</span></button>
+        <button class="nav-btn" data-about-sub="changelog"><i data-lucide="notebook-pen" class="w-3.5 h-3.5"></i> <span data-i18n="about_changelog">Changelog</span></button>
+      </nav>
+      <section id="about-log" class="card p-6 sm:p-7 fade-in" role="tabpanel">
+        <h3 class="text-base font-semibold mb-3" data-i18n="about_log_title">Processing Logs</h3>
+        <p class="text-xs mb-4" data-i18n="about_log_desc" style="color:var(--text-dim)">Record of each upload and processing task</p>
+        <div id="log-entries" class="divide-y" style="border-color:var(--border)"><p class="text-xs py-4" data-i18n="about_log_empty" style="color:var(--text-dim)">No log records</p></div>
+        <button id="clear-log-btn" class="btn btn-ghost text-xs mt-3" style="min-height:36px;padding:6px 14px"><i data-lucide="trash-2" class="w-3 h-3"></i> <span data-i18n="about_log_clear">Clear Logs</span></button>
+      </section>
+      <section id="about-user" class="hidden card p-6 sm:p-7 fade-in" role="tabpanel">
+        <h3 class="text-base font-semibold mb-4" data-i18n="about_user_title">Personal Info</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_ip" style="color:var(--text-dim)">IP Address</span><span id="user-ip" class="text-sm font-medium" data-i18n="loading">Loading...</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_lang" style="color:var(--text-dim)">Language</span><span id="user-lang" class="text-sm font-medium">Loading...</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_browser" style="color:var(--text-dim)">Browser</span><span id="user-browser" class="text-sm font-medium">Loading...</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_user_os" style="color:var(--text-dim)">Operating System</span><span id="user-os" class="text-sm font-medium">Loading...</span></div>
+          <div class="flex justify-between items-center py-2"><span class="text-xs" data-i18n="about_user_screen" style="color:var(--text-dim)">Screen Resolution</span><span id="user-screen" class="text-sm font-medium">Loading...</span></div>
+        </div>
+      </section>
+      <section id="about-theme" class="hidden card p-6 sm:p-7 fade-in" role="tabpanel">
+        <h3 class="text-base font-semibold mb-4" data-i18n="about_theme_title">Theme Settings</h3>
+        <p class="text-xs mb-5" data-i18n="about_theme_desc" style="color:var(--text-dim)">Choose a theme to apply instantly</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-water"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#4a7c59,#7ba587)"></div><p class="text-xs font-medium" data-i18n="about_theme_water">Water Lilies</p></button>
+          <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-sunrise"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#c97d3b,#e0a56f)"></div><p class="text-xs font-medium" data-i18n="about_theme_sunrise">Sunrise</p></button>
+          <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-garden"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#7c5cbf,#a78fcf)"></div><p class="text-xs font-medium" data-i18n="about_theme_garden">Garden</p></button>
+          <button class="theme-card card p-4 text-center cursor-pointer hover:ring-2 transition-all" data-theme="theme-dark"><div class="w-10 h-10 rounded-full mx-auto mb-2" style="background:linear-gradient(135deg,#6366f1,#a5b4fc)"></div><p class="text-xs font-medium" data-i18n="about_theme_dark">Dark Mode</p></button>
+        </div>
+      </section>
+      <section id="about-dev" class="hidden card p-6 sm:p-7 fade-in" role="tabpanel">
+        <h3 class="text-base font-semibold mb-3" data-i18n="about_dev_title">Developer Info</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_name" style="color:var(--text-dim)">Developer</span><span class="text-sm font-medium">Mark From Tokyo</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_engine" style="color:var(--text-dim)">Backend Engine</span><span class="text-sm font-medium">Python + PyMuPDF</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_web" style="color:var(--text-dim)">Web Framework</span><span class="text-sm font-medium">Flask + Jinja2</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_frontend" style="color:var(--text-dim)">Frontend</span><span class="text-sm font-medium">Tailwind CSS + Lucide Icons</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" data-i18n="about_dev_ai" style="color:var(--text-dim)">AI Collaboration</span><span class="text-sm font-medium">Claude</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" style="color:var(--text-dim)">License</span><span class="text-sm font-medium">Apache 2.0</span></div>
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid var(--border)"><span class="text-xs" style="color:var(--text-dim)">GitHub</span><a href="https://markblogforpublic.github.io/" target="_blank" class="text-sm font-medium truncate" style="color:var(--primary);text-decoration:none">markblogforpublic.github.io</a></div>
+          <div class="py-3 mt-2"><p class="text-xs leading-relaxed" data-i18n="about_dev_footer" style="color:var(--text-dim)">Built by markblogforpublic.github.io & Claude</p></div>
+        </div>
+      </section>
+      <section id="about-changelog" class="hidden card p-6 sm:p-7 fade-in" role="tabpanel">
+        <h3 class="text-base font-semibold mb-3" data-i18n="about_changelog_title">V2.6 更新内容</h3>
+        <div class="space-y-2 text-xs leading-relaxed" style="color:var(--text-dim)">
+          <div class="flex gap-2 py-1.5" style="border-bottom:1px solid var(--border)">
+            <span class="shrink-0 px-1.5 py-0.5 rounded text-xs font-semibold text-white" style="background:#2f855a">V2.6</span>
+            <span>2026-05-09</span>
+          </div>
+          <p data-i18n="cl_v26_1">Fix: UK/AU label scan uses text block center to assign quadrants, eliminating duplicate/missed labels</p>
+          <p data-i18n="cl_v26_2">Enhance: Export verification now detects out-of-range labels automatically</p>
+          <p data-i18n="cl_v26_3">Optimize: Cleaner server logs with timestamps for easier debugging</p>
+          <p data-i18n="cl_v26_4">Security: Stronger password encryption for safer login</p>
+          <p data-i18n="cl_v26_5">Optimize: Faster responses and better stability under heavy use</p>
+          <p data-i18n="cl_v26_6">Optimize: CLI mode now uses the same language as the web UI</p>
+          <p data-i18n="cl_v26_7">Optimize: Cleaned up redundant code for a lighter footprint</p>
+          <p data-i18n="cl_v26_8">Optimize: Server can now start without a graphical display</p>
+        </div>
+        <!-- Redesigned 1 foldable -->
+        <div class="mt-3 pt-3" style="border-top:1px solid var(--border)">
+          <button id="rd1-toggle" class="flex items-center gap-2 w-full text-left py-2 text-xs font-medium" style="color:var(--text-dim);background:none;border:none;cursor:pointer" onclick="const p=document.getElementById('rd1-content'),i=document.getElementById('rd1-icon');p.classList.toggle('hidden');i.style.transform=p.classList.contains('hidden')?'rotate(0deg)':'rotate(90deg)';i.style.transition='transform 0.15s'">
+            <i id="rd1-icon" data-lucide="chevron-right" class="w-3.5 h-3.5" style="transition:transform 0.15s"></i>
+            <span>Redesigned 1 <span class="opacity-70 text-xs">— 2026-05-09 界面重设计</span></span>
+          </button>
+          <div id="rd1-content" class="hidden mt-2 space-y-2 text-xs leading-relaxed" style="color:var(--text-dim)">
+            <p data-i18n="cl_v26_9">UI: Sidebar navigation layout, collapsible sidebar</p>
+            <p data-i18n="cl_v26_10">UI: Inter font, larger rounded corners, improved spacing</p>
+            <p data-i18n="cl_v26_11">UI: Larger headings for better readability</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 mt-2 p-2 rounded-lg" style="background:var(--surface);border:1px solid var(--border)">
-          <span class="text-sm font-mono flex-shrink-0" style="color:var(--primary)">$</span>
-          <input id="cli-input" type="text" data-i18n-placeholder="cli_input_placeholder" placeholder="Enter command, e.g.: help  /  region uk  /  pdf C:\labels.pdf ..."
-            class="flex-1 bg-transparent border-none outline-none text-sm font-mono px-1"
-            style="color:var(--text)" autocomplete="off" spellcheck="false">
+        <div class="mt-6 space-y-2 text-xs leading-relaxed" style="color:var(--text-dim)">
+          <div class="flex gap-2 py-1.5" style="border-bottom:1px solid var(--border)">
+            <span class="shrink-0 px-1.5 py-0.5 rounded text-xs font-semibold text-white" style="background:#4a7c59">V2.5</span>
+            <span>2026-05-01</span>
+          </div>
+          <p data-i18n="cl_v25_1">UK/AU mode: Split PDF by FBA label number ranges</p>
+          <p data-i18n="cl_v25_2">US mode: Split PDF by Single SKU text markers</p>
+          <p data-i18n="cl_v25_3">Web GUI: Drag-and-drop upload, progress bar, one-click ZIP download</p>
+          <p data-i18n="cl_v25_4">CLI mode: 17 English commands with history support</p>
+          <p data-i18n="cl_v25_5">Desktop launcher: One-click start/stop, advanced settings</p>
+          <p data-i18n="cl_v25_6">Bilingual UI (Chinese/English), 4 themes</p>
+          <p data-i18n="cl_v25_7">User authentication with role-based permissions</p>
+        </div>
+      </section>
+    </main>
+
+    </div><!-- /#main-content -->
+
+    <!-- ====== CLI View ====== -->
+    <div id="cli-main-view" class="hidden flex-1 flex flex-col min-h-0 fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--primary)">
+            <i data-lucide="terminal" class="w-4 h-4 text-white"></i>
+          </span>
+          <span class="text-base font-semibold" data-i18n="cli_terminal_title">CLI Terminal</span>
+        </div>
+        <button id="cli-exit-btn" class="btn btn-ghost text-xs" style="min-height:36px;padding:6px 14px">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> <span data-i18n="cli_return_gui">Return to GUI</span>
+        </button>
+      </div>
+      <div class="flex gap-3 flex-1 min-h-0">
+        <div class="flex-1 flex flex-col min-w-0">
+          <div id="cli-output" class="flex-1 overflow-y-auto rounded-lg p-4 font-mono text-xs" style="background:#1a1a2e;color:#a5b4fc">
+            <div id="cli-output-content">
+              <div style="color:#6ee7b7">╔══════════════════════════════════════════╗</div>
+              <div style="color:#6ee7b7"><span data-i18n="cli_welcome_line1">║   FBA Label Splitter CLI v2.6          ║</span></div>
+              <div style="color:#6ee7b7">╚══════════════════════════════════════════╝</div>
+              <div style="color:#9999b3" data-i18n="cli_welcome_line2">Type 'help' for available commands.</div>
+              <div style="color:#9999b3" data-i18n="cli_welcome_line3">Press up/down arrow for command history.</div>
+              <div>&nbsp;</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-2 p-2 rounded-lg" style="background:var(--surface);border:1px solid var(--border)">
+            <span class="text-sm font-mono flex-shrink-0" style="color:var(--primary)">$</span>
+            <input id="cli-input" type="text" data-i18n-placeholder="cli_input_placeholder" placeholder="Enter command, e.g.: help  /  region uk  /  pdf C:\labels.pdf ..."
+              class="flex-1 bg-transparent border-none outline-none text-sm font-mono px-1"
+              style="color:var(--text)" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="flex-shrink-0 flex flex-col" style="width:320px">
+          <div id="cli-reference" class="flex-1 overflow-y-auto rounded-lg p-4 text-xs font-mono" style="background:var(--surface);border:1px solid var(--border)">
+            <div style="color:var(--text);margin-bottom:8px;font-weight:700;font-size:12px" data-i18n="cli_ref_title"><i data-lucide="book-open" class="w-3.5 h-3.5 inline"></i>  Command Reference</div>
+            <div style="color:var(--text-dim);margin-bottom:8px;font-size:10px" data-i18n="cli_ref_hint">Type <b>help</b> in terminal for full guide with examples</div>
+            <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_uk_mode">── UK / AU Mode ──</div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>region</b> uk|au       <span style="opacity:0.5">Switch mode</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>pdf</b> &lt;path&gt;        <span style="opacity:0.5">Load FBA label PDF</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>csv</b> &lt;path&gt;        <span style="opacity:0.5">Load packing list</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range add</b> s e [t]  <span style="opacity:0.5">Add label range</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range list</b>        <span style="opacity:0.5">List all ranges</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range clear</b>       <span style="opacity:0.5">Clear ranges</span></div>
+            <div style="color:var(--text_dim);font-size:11px;line-height:1.8"><b>process</b>           <span style="opacity:0.5">Run UK/AU splitting</span></div>
+            <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_us_mode">── US Mode ──</div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>region</b> us         <span style="opacity:0.5">Switch to US mode</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-pdf</b> &lt;path&gt;    <span style="opacity:0.5">Load US SKU PDF</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-grid</b> r c       <span style="opacity:0.5">Grid: rows x cols</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-margin</b> L T R B  <span style="opacity:0.5">Page margins (pt)</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-process</b>        <span style="opacity:0.5">Run SKU splitting</span></div>
+            <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_output">── Output ──</div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download</b>          <span style="opacity:0.5">List generated files</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download</b> &lt;name&gt;  <span style="opacity:0.5">Get a specific file</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download-all</b>      <span style="opacity:0.5">Get all as ZIP</span></div>
+            <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_general">── General ──</div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>help</b>              <span style="opacity:0.5">Full command reference</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>status</b> | info     <span style="opacity:0.5">Show current state</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>history</b>           <span style="opacity:0.5">Command history</span></div>
+            <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>clear</b>             <span style="opacity:0.5">Clear terminal</span></div>
+            <div style="color:var(--text-dim);margin-top:10px;opacity:0.4;font-size:10px;font-style:italic" data-i18n="cli_ref_paths_hint">All file paths must be absolute.<br>Press up / down arrow keys for history.</div>
+          </div>
         </div>
       </div>
-      <!-- Right: reference panel -->
-      <div class="flex-shrink-0 flex flex-col" style="width:320px">
-        <div id="cli-reference" class="flex-1 overflow-y-auto rounded-lg p-4 text-xs font-mono" style="background:var(--surface);border:1px solid var(--border)">
-          <div style="color:var(--text);margin-bottom:8px;font-weight:700;font-size:12px" data-i18n="cli_ref_title"><i data-lucide="book-open" class="w-3.5 h-3.5 inline"></i>  Command Reference</div>
-          <div style="color:var(--text-dim);margin-bottom:8px;font-size:10px" data-i18n="cli_ref_hint">Type <b>help</b> in terminal for full guide with examples</div>
+    </div><!-- /#cli-main-view -->
 
-          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_uk_mode">── UK / AU Mode ──</div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>region</b> uk|au       <span style="opacity:0.5">Switch mode</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>pdf</b> &lt;path&gt;        <span style="opacity:0.5">Load FBA label PDF</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>csv</b> &lt;path&gt;        <span style="opacity:0.5">Load packing list</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range add</b> s e [t]  <span style="opacity:0.5">Add label range</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range list</b>        <span style="opacity:0.5">List all ranges</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>range clear</b>       <span style="opacity:0.5">Clear ranges</span></div>
-          <div style="color:var(--text_dim);font-size:11px;line-height:1.8"><b>process</b>           <span style="opacity:0.5">Run UK/AU splitting</span></div>
-
-          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_us_mode">── US Mode ──</div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>region</b> us         <span style="opacity:0.5">Switch to US mode</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-pdf</b> &lt;path&gt;    <span style="opacity:0.5">Load US SKU PDF</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-grid</b> r c       <span style="opacity:0.5">Grid: rows x cols</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-margin</b> L T R B  <span style="opacity:0.5">Page margins (pt)</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>us-process</b>        <span style="opacity:0.5">Run SKU splitting</span></div>
-
-          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_output">── Output ──</div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download</b>          <span style="opacity:0.5">List generated files</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download</b> &lt;name&gt;  <span style="opacity:0.5">Get a specific file</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>download-all</b>      <span style="opacity:0.5">Get all as ZIP</span></div>
-
-          <div style="color:var(--primary);margin-top:8px;margin-bottom:3px;font-weight:600;font-size:11px" data-i18n="cli_ref_general">── General ──</div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>help</b>              <span style="opacity:0.5">Full command reference</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>status</b> | info     <span style="opacity:0.5">Show current state</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>history</b>           <span style="opacity:0.5">Command history</span></div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.8"><b>clear</b>             <span style="opacity:0.5">Clear terminal</span></div>
-
-          <div style="color:var(--text-dim);margin-top:10px;opacity:0.4;font-size:10px;font-style:italic" data-i18n="cli_ref_paths_hint">All file paths must be absolute.<br>Press up / down arrow keys for history.</div>
-        </div>
-      </div>
-    </div>
-  </div><!-- /#cli-main-view -->
-
-  </div><!-- /#content-area -->
-
-  <footer class="mt-6 pt-4 text-center" style="border-top:1px solid var(--border)">
-    <p class="text-xs" style="color:var(--text-dim)"><span data-i18n="app_title">FBA Label Splitter</span> <span data-i18n="app_version">V2.5</span></p>
-  </footer>
-</div>
+    <footer class="mt-8 pt-5 text-center" style="border-top:1px solid var(--border)">
+      <p class="text-xs" style="color:var(--text-dim)"><span data-i18n="app_title">FBA Label Splitter</span> <span data-i18n="app_version">V2.6</span></p>
+    </footer>
+  </div><!-- /main-area -->
+</div><!-- /#app-container -->
 
 <script>
-// ====== I18N — populated by Flask server-side ======
+// ====== I18N ======
 const I18N_ZH = {{ lang_strings_zh | tojson | safe }};
 const I18N_EN = {{ lang_strings_en | tojson | safe }};
 let I18N = I18N_ZH;
 let LANG = '{{ lang }}';
+const LANG_LABELS = {zh:'中文',en:'English',ja:'日本語'};
 
-function t(key) {
-  return I18N[key] || key;
-}
+function t(key) { return I18N[key] || key; }
 
 function setLang(lang) {
-  LANG = lang;
-  I18N = lang === 'en' ? I18N_EN : I18N_ZH;
-  localStorage.setItem('fba-lang', lang);
-  refreshI18n();
+  if(lang==='zh')I18N=I18N_ZH;
+  else if(lang==='en')I18N=I18N_EN;
+  else I18N={{ lang_strings_ja | tojson | safe }};
+  LANG=lang;localStorage.setItem('fba-lang',lang);refreshI18n();
+  const lb=document.getElementById('lang-label');
+  if(lb)lb.textContent=LANG_LABELS[lang]||lang;
 }
 
 function refreshI18n() {
@@ -448,33 +514,26 @@ function refreshI18n() {
     const key = el.getAttribute('data-i18n-placeholder');
     el.placeholder = t(key) || '';
   });
-  // Update html lang attribute
-  document.getElementById('app-html').setAttribute('lang', LANG === 'zh' ? 'zh-CN' : 'en');
-  // Update lang toggle button title
-  const langBtn = document.getElementById('lang-toggle');
-  if (langBtn) langBtn.title = LANG === 'zh' ? 'Switch to English' : '切换到中文';
+  document.getElementById('app-html').setAttribute('lang', LANG === 'zh' ? 'zh-CN' : LANG === 'ja' ? 'ja-JP' : 'en');
 }
 
-// Initialize language from localStorage or server default
 (function initLang() {
-  const saved = localStorage.getItem('fba-lang');
-  if (saved === 'en' || saved === 'zh') {
-    LANG = saved;
-  }
-  I18N = LANG === 'en' ? I18N_EN : I18N_ZH;
-  refreshI18n();
+  const saved=localStorage.getItem('fba-lang');
+  if(saved==='en'||saved==='zh'||saved==='ja')LANG=saved;
+  setLang(LANG);
 })();
 
-// Language toggle handler
 document.addEventListener('DOMContentLoaded', function() {
-  const langBtn = document.getElementById('lang-toggle');
-  if (langBtn) {
-    langBtn.addEventListener('click', function() {
-      setLang(LANG === 'zh' ? 'en' : 'zh');
+  const toggle=document.getElementById('lang-toggle');
+  const menu=document.getElementById('lang-menu');
+  if(toggle&&menu){
+    toggle.addEventListener('click',function(e){e.stopPropagation();menu.classList.toggle('hidden');});
+    document.addEventListener('click',function(e){if(!menu.contains(e.target))menu.classList.add('hidden');});
+    document.querySelectorAll('.lang-opt').forEach(btn=>{
+      btn.addEventListener('click',function(){setLang(this.dataset.lang);menu.classList.add('hidden');});
     });
   }
 });
-
 // ====== End I18N ======
 
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
@@ -482,11 +541,8 @@ const S={pdfFile:null,csvFile:null,jobId:null,polling:null,theme:localStorage.ge
 function applyTheme(name){
   document.body.className=document.body.className.replace(/theme-\w+/g,'')+' '+name;
   S.theme=name;localStorage.setItem('fba-theme',name);
-  $$('.theme-swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===name));
-  $$('.theme-card').forEach(c=>c.style.outline=c.dataset.theme===name?'2px solid var(--primary)':'');
 }
 applyTheme(S.theme);
-document.getElementById('theme-switcher-mini').addEventListener('click',e=>{const sw=e.target.closest('.theme-swatch');if(!sw)return;applyTheme(sw.dataset.theme)});
 $$('.theme-card').forEach(c=>c.addEventListener('click',()=>applyTheme(c.dataset.theme)));
 S.region='uk';
 function setRegion(r){
@@ -511,7 +567,7 @@ $$('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{
 }));
 $$('[data-about-sub]').forEach(btn=>btn.addEventListener('click',()=>{
   $$('[data-about-sub]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['log','theme','user','dev'].forEach(id=>{const el=$('#about-'+id);el.classList.toggle('hidden',btn.dataset.aboutSub!==id)});
+  ['log','user','theme','dev','changelog'].forEach(id=>{const el=$('#about-'+id);el.classList.toggle('hidden',btn.dataset.aboutSub!==id)});
   if(btn.dataset.aboutSub==='user')loadUserInfo();
 }));
 function setupDrop(zoneId,inputId,nameId,exts,onFile){
@@ -563,6 +619,7 @@ async function previewCSV(file){
   $$('#range-tbody tr[id^="range-row-"]').forEach(r=>r.remove());const empty=$('#range-empty-row');if(empty)empty.remove();
   uniq.forEach(r=>addRangeRow(r.title,r.start,r.end));updateBtn();
 }
+
 $('#process-btn').addEventListener('click',async()=>{
   const ranges=getRanges();if(!S.pdfFile||!ranges.length)return;
   $('#error-section').classList.add('hidden');$('#results-section').classList.add('hidden');$('#progress-section').classList.remove('hidden');$('#process-btn').disabled=true;
@@ -722,6 +779,19 @@ function updateUserArea(){
     logout.classList.add('hidden');
   }
 }
+
+// ====== Sidebar Toggle ======
+const sidebarToggle=$('#sidebar-toggle');
+let sidebarCollapsed=localStorage.getItem('fba-sidebar')==='1';
+if(sidebarCollapsed)document.body.classList.add('sidebar-collapsed');
+sidebarToggle?.addEventListener('click',()=>{
+  sidebarCollapsed=!sidebarCollapsed;
+  document.body.classList.toggle('sidebar-collapsed',sidebarCollapsed);
+  localStorage.setItem('fba-sidebar',sidebarCollapsed?'1':'0');
+  const icon=sidebarToggle.querySelector('i');
+  if(icon)icon.setAttribute('data-lucide',sidebarCollapsed?'panel-left-open':'panel-left-close');
+  lucide.createIcons();
+});
 
 // ====== Initialize ======
 initAuth().then(()=>{updateUserArea();initCLI();});

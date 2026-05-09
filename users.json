@@ -1,0 +1,14 @@
+{
+  "root": {
+    "password": "",
+    "salt": "",
+    "permissions": {
+      "cli": true,
+      "regions": [
+        "uk",
+        "au",
+        "us"
+      ]
+    }
+  }
+}

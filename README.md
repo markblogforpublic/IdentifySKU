@@ -1,12 +1,50 @@
-# FBA Label Splitter V2.5
+# FBA Label Splitter V2.6 Redesigned 1
 
 **Amazon FBA 标签智能拆分工具** | *Amazon FBA Label Intelligent Splitter*
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue)]()
 
-
 Automatically split multi-label PDF sheets into individual SKU/range-based PDF files. Supports UK, AU, and US Amazon marketplace label formats.
 
 自动将多标签 PDF 按 SKU / 编号区间拆分为独立 PDF 文件。支持英国、澳洲、美国亚马逊站点标签格式。
+
+---
+
+## 🆕 V2.6 Redesigned 1 更新内容 | What's New
+
+### 界面重设计
+- **侧边栏导航布局** — 导航从顶部移至左侧，类似 ChatGPT 风格，用户信息和语言切换放在侧边栏底部
+- **Inter 字体 + Material 3** — 引入 Anthropic 同款 Inter 字体，卡片和按钮圆角增大，视觉更现代
+- **主题选择器移至关于页** — 顶部区域更简洁
+
+### 修复
+- **UK/AU 标签扫描重写** — 旧版按页面四等分裁剪提取文字，标签位于中心边界时会被重复识别或遗漏。新版改用文本块中心坐标分配象限，每个标签唯一归属一个区间，彻底解决切片被错误归类的问题
+- **导出验证增强** — 输出 PDF 时会自动检查每个标签的编号是否落在对应的区间范围内，发现越界立即告警
+
+### 优化
+- **后台日志升级** — 所有 `print()` 统一迁移至 `logging` 模块，带时间戳和日志等级，排查问题更方便
+- **操作响应优化** — 速率限制器改用高效数据结构，多人同时使用时更稳定
+- **命令行语言跟随** — CLI 终端不再只显示中文，而是跟随网页界面的语言设置（中文/英文）
+- **代码精简** — 消除多处重复逻辑，移除未使用的导入，运行更轻量
+- **tkinter 延迟加载** — 服务端无图形界面时也能正常启动，不再强制依赖 GUI
+
+### 安全
+- **密码加密升级** — 账户密码从 SHA256 升级为 PBKDF2（60 万次迭代），登录更安全
+
+### Other Changes
+- Version bump: V2.5 → V2.6 → V2.6 Redesigned 1
+
+## 🎉 V2.5 首个版本 | First Release (2026-05-01)
+
+V2.5 是 FBA Label Splitter 的第一个公开发布版本，实现了完整的标签拆分功能：
+
+- **UK/AU 模式**：按 FBA 标签编号区间拆分 PDF，支持 CSV/Excel 装箱单自动解析
+- **US 模式**：按 "Single SKU" 文本标记拆分 PDF，支持自定义网格和边距
+- **Web 图形界面**：拖拽上传、实时进度条、一键下载 ZIP
+- **CLI 命令行模式**：17 条英文命令，支持历史记录浏览
+- **桌面启动器**：一键启动/停止服务，高级设置面板
+- **中英文双语**：所有界面、提示、日志均支持中英文切换
+- **4 套主题**：睡莲、日出、花园、暗夜
+- **用户登录**：可选登录验证，支持权限管理
 
 ---
 ## License

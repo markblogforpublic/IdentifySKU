@@ -1,0 +1,6 @@
+{
+  "port": 5000,
+  "login_required": false,
+  "cli_mode": false,
+  "public_access": false
+}

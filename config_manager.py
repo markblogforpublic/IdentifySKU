@@ -3,7 +3,6 @@ Configuration and user management module
 Manages config.json (runtime parameters) and users.json (user accounts).
 """
 import os, sys, json, hashlib
-import lang
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
@@ -66,17 +65,21 @@ def save_users(users):
 #  Password utilities
 # ═══════════════════════════════════════════════════
 
-def hash_password(password, salt=None):
-    """Returns (hash_hex, salt_hex)"""
-    if salt is None:
-        salt = os.urandom(16).hex()
-    h = hashlib.sha256((salt + password).encode()).hexdigest()
-    return h, salt
+def hash_password(password, salt_bytes=None):
+    """Returns (hash_hex, salt_hex). Uses PBKDF2-HMAC-SHA256 with 600k iterations."""
+    if len(password) > 128:
+        raise ValueError("Password exceeds maximum length (128 characters)")
+    if salt_bytes is None:
+        salt_bytes = os.urandom(16)
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt_bytes, 600000)
+    return dk.hex(), salt_bytes.hex()
 
 
-def verify_password(password, stored_hash, salt):
-    h, _ = hash_password(password, salt)
-    return h == stored_hash
+def verify_password(password, stored_hash, salt_hex):
+    """Verify password against stored PBKDF2 hash."""
+    salt_bytes = bytes.fromhex(salt_hex) if salt_hex else b''
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt_bytes, 600000)
+    return dk.hex() == stored_hash
 
 
 # ═══════════════════════════════════════════════════
@@ -86,7 +89,7 @@ def verify_password(password, stored_hash, salt):
 def add_user(username, password, permissions=None):
     users = load_users()
     if username in users:
-        return False, lang.get('userdlg_user_exists', 'zh')
+        return False, "User already exists"
     pwd_hash, salt = hash_password(password)
     users[username] = {
         "password": pwd_hash,
@@ -94,13 +97,13 @@ def add_user(username, password, permissions=None):
         "permissions": permissions or {"cli": False, "regions": []}
     }
     save_users(users)
-    return True, lang.get('userdlg_added', 'zh')
+    return True, "User added successfully"
 
 
 def update_user(username, password=None, permissions=None):
     users = load_users()
     if username not in users:
-        return False, lang.get('userdlg_not_found', 'zh')
+        return False, "User not found"
     if password is not None:
         pwd_hash, salt = hash_password(password)
         users[username]["password"] = pwd_hash
@@ -108,18 +111,18 @@ def update_user(username, password=None, permissions=None):
     if permissions is not None:
         users[username]["permissions"] = permissions
     save_users(users)
-    return True, lang.get('userdlg_updated', 'zh')
+    return True, "User updated successfully"
 
 
 def delete_user(username):
     if username == "root":
-        return False, lang.get('userdlg_root_protect', 'zh')
+        return False, "Cannot delete root user"
     users = load_users()
     if username not in users:
-        return False, lang.get('userdlg_not_found', 'zh')
+        return False, "User not found"
     del users[username]
     save_users(users)
-    return True, lang.get('success', 'zh')
+    return True, "Success"
 
 
 def get_user_list():
@@ -140,6 +143,9 @@ def authenticate(username, password):
     user = users.get(username)
     if not user:
         return None
-    if verify_password(password, user["password"], user.get("salt", "")):
+    stored_hash = user.get("password", "")
+    if not stored_hash:
+        return None  # No password set, cannot authenticate
+    if verify_password(password, stored_hash, user.get("salt", "")):
         return user.get("permissions", {"cli": False, "regions": []})
     return None

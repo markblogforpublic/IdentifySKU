@@ -1,10 +1,12 @@
 """
-FBA Label Splitter V2.5 — Launcher
+FBA Label Splitter V2.6 Redesigned 1 — Launcher
 Double-click to start the server + auto-open browser
 Includes advanced settings: port/account management/CLI mode
 """
-import os, sys, threading, webbrowser, time
+import os, sys, threading, webbrowser, time, logging
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
@@ -38,7 +40,7 @@ def run_flask():
         web_app.app.config['TEMPLATE_FOLDER'] = os.path.join(BASE_DIR, 'templates')
         web_app.app.run(host=host, port=PORT, debug=False, use_reloader=False)
     except Exception as e:
-        print(f"Server error: {e}")
+        logger.exception("Server error: %s", e)
     finally:
         server_running = False
 
@@ -306,8 +308,9 @@ class Launcher(ctk.CTk):
         if login_on: tags.append(lang.get('launcher_info_login', 'zh'))
         if cli_on: tags.append(lang.get('launcher_info_cli', 'zh'))
         info_text = " · ".join(tags) if tags else lang.get('launcher_info_anonymous', 'zh')
-        ctk.CTkLabel(self, text=info_text, font=ctk.CTkFont(size=10),
-                     text_color="#9CA3AF").pack(pady=(0, 5))
+        self._info_label = ctk.CTkLabel(self, text=info_text, font=ctk.CTkFont(size=10),
+                                        text_color="#9CA3AF")
+        self._info_label.pack(pady=(0, 5))
 
         # Start / Stop button
         self.btn_launch = ctk.CTkButton(self, text=lang.get('launcher_btn_start', 'zh'), height=46, corner_radius=23,
@@ -382,19 +385,8 @@ class Launcher(ctk.CTk):
         if cli_on: tags.append(lang.get('launcher_info_cli', 'zh'))
         if public_on: tags.append(lang.get('launcher_info_public', 'zh'))
         info_text = " · ".join(tags) if tags else lang.get('launcher_info_anonymous', 'zh')
-        for w in self.winfo_children():
-            if isinstance(w, ctk.CTkLabel) and w.cget("text") in (
-                lang.get('launcher_info_login', 'zh'), lang.get('launcher_info_cli', 'zh'), lang.get('launcher_info_anonymous', 'zh'),
-                lang.get('launcher_info_login', 'zh') + " · " + lang.get('launcher_info_cli', 'zh'), " · ".join(tags)
-            ):
-                w.configure(text=info_text)
-                return
-        # fallback: update any matching label
-        for w in self.winfo_children():
-            if isinstance(w, ctk.CTkLabel):
-                txt = w.cget("text")
-                if txt and (lang.get('launcher_info_login', 'zh')[:2] in txt or "CLI" in txt or lang.get('launcher_info_anonymous', 'zh')[:2] in txt):
-                    w.configure(text=info_text)
+        if hasattr(self, '_info_label'):
+            self._info_label.configure(text=info_text)
 
     # ── Advanced settings ──
 
@@ -622,4 +614,9 @@ class SettingsWindow:
 # ═══════════════════════════════════════════════════
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
     Launcher().mainloop()
